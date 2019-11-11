@@ -91,8 +91,8 @@ public class GraphExpression {
                 doDFS(startNode);
                 break;
             case "BFS":
-                //doBFS(startNode);
-                System.out.println("bfs not implemented");
+                doBFS(startNode);
+               
                 break;
             case "Dijkstra's":
                 //doDijkstras(startNode);
@@ -112,9 +112,16 @@ public class GraphExpression {
         }
     }
 //
-//    public void doBFS(Node startNode) {
-//        Iterator<Node> i = startNode.getBreadthFirstIterator();
-//    }
+    public void doBFS(Node startNode) {
+        Iterator<Node> i = startNode.getBreadthFirstIterator();
+        while (i.hasNext()){
+            Node next = i.next();
+            System.out.println("Found node: " + next.getId());
+   
+        }
+        i.pop();
+        doBFS(next);
+    }
 //
 //    public void doDijkstras(Node startNode) {
 //
