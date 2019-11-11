@@ -1,16 +1,45 @@
 import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.javatuples.Triplet;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class GraphExpression {
-    //TODO populate this 
+    // TODO -- where to actually call graph.display() ???
+
+    // TODO -- require that node names be unique (graphstream won't allow it otherwise)
 
     private Graph graph;
+    private int vertices; //??????
+
+    public static void main(String[] args) { // TODO - remove this later
+        GraphExpression ge = new GraphExpression();
+        ArrayList<String> nodes = new ArrayList<>();
+        nodes.add("A");
+        nodes.add("B");
+        nodes.add("C");
+        nodes.add("D");
+
+        Triplet<String, String, Double> edge0 = new Triplet<>("A", "B", null);
+        Triplet<String, String, Double> edge1 = new Triplet<>("B", "C", null);
+        Triplet<String, String, Double> edge2 = new Triplet<>("D", "C", null);
+        Triplet<String, String, Double> edge3 = new Triplet<>("C", "A", null);
+        ArrayList<Triplet<String, String, Double>> edges = new ArrayList<>();
+        edges.add(edge0);
+        edges.add(edge1);
+        edges.add(edge2);
+        edges.add(edge3);
+
+        ge.graph(nodes, edges);
+
+        ge.doAlgorithm("DFS", "A");
+    }
 
     public GraphExpression() {
         graph = new MultiGraph("myGraph");
+        vertices = 0;
     }
 
     //    // test push
@@ -31,6 +60,7 @@ public class GraphExpression {
 
     public void makeNode(String nodeName) {
         graph.addNode(nodeName);
+        vertices++;
     }
 
     // edges are pairs of nodes (start node, end node)
@@ -39,6 +69,7 @@ public class GraphExpression {
     public void graph(ArrayList<String> nodes, ArrayList<Triplet<String, String, Double>> edges) {
         for (String n : nodes) {
             graph.addNode(n);
+            vertices++;
         }
 
         for (Triplet e : edges) {
@@ -47,31 +78,45 @@ public class GraphExpression {
                 //set edge's weight
             }
         }
+
+       //System.out.println("Displaying graph: REMOVE LATER");
+        // graph.display();
     }
 
-    public void doAlgorithm(String algorithmName) {
+    public void doAlgorithm(String algorithmName, String start) {
+        Node startNode = graph.getNode(start);
+
         switch (algorithmName) {
             case "DFS":
-                doDFS();
+                doDFS(startNode);
                 break;
             case "BFS":
-                doBFS();
+                //doBFS(startNode);
+                System.out.println("bfs not implemented");
                 break;
             case "Dijkstra's":
-                doDijkstras();
+                //doDijkstras(startNode);
+                System.out.println("dijkstra not implemented");
                 break;
         }
     }
 
-    public void doDFS() {
+    // TODO: add directed/undirected later
 
+    private void doDFS(Node startNode) {
+        Iterator<Node> i = startNode.getDepthFirstIterator();
+
+        while (i.hasNext()) {
+            Node next = i.next();
+            System.out.println("Found node: " + next.getId());
+        }
     }
-
-    public void doBFS() {
-
-    }
-
-    public void doDijkstras() {
-
-    }
+//
+//    public void doBFS(Node startNode) {
+//        Iterator<Node> i = startNode.getBreadthFirstIterator();
+//    }
+//
+//    public void doDijkstras(Node startNode) {
+//
+//    }
 }
