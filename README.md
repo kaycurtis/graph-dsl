@@ -29,14 +29,14 @@ EBNF:
 
 
 The following is an example of creating a simple graph with 6 nodes and 4 edges:
-
+```
 Graph GRAPH = Parser.parseGraph("{graph {A B C D E F} {{A to B} {A to D} {A to C} {C to E} {D to F}}}");
 
-
+```
 The following is an example of performing BFS on a graph with 4 edges:
-
+```
 String demo1 = "{do BFS on {graph {A B C D E F} {{A to B} {A to D} {A to C} {C to E} {D to F}}} from A to C}";
 Interpreter.interpret(demo1);
-
+```
 
 
