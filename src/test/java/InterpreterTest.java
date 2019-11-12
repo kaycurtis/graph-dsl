@@ -11,6 +11,7 @@ public class InterpreterTest {
             " {F to D} {F to A} {D to E} {E to G} {G to A} {A to X} {X to G} {X to D} {E to C} {X to F} {B to G}}}");
     private static final Graph SIMPLE_GRAPH = Parser.parseGraph("{graph {A B C} {{A to B} {B to C} {C to A}}}");
     private static final Graph GRAPH3 = Parser.parseGraph("{graph {A B} {{A to B} {A to A} {B to A}}}");
+    private static final Graph GRAPH4 = Parser.parseGraph("{graph {A B C D E F} {{A to B} {A to C} {D to E} {D to F}}}");
 
     @Test
     public void testBfs() {
@@ -54,6 +55,27 @@ public class InterpreterTest {
     @Test
     public void testDfsNonexistentEnd() {
         Interpreter.interpret(Demo.of(Algorithm.DFS, SIMPLE_GRAPH, Node.of("A"), Node.of("E")));
+    }
+    
+    @Test
+    public void testBfsUnreachableEnd() {
+        Interpreter.interpret(Demo.of(Algorithm.BFS, GRAPH4, Node.of("A"), Node.of("E")));
+    }
+
+    @Test
+    public void testDfsUnreachableEnd() {
+        Interpreter.interpret(Demo.of(Algorithm.DFS, GRAPH4, Node.of("A"), Node.of("E")));
+    }
+
+    @Test
+    public void testDfsGraphDuplicateEdge() {
+        // todo - should duplicate nodes/edges be checked for in parsing or interpreting?
+        Graph BAD_GRAPH = Parser.parseGraph("{graph {A B C} {{A to B} {B to C} {B to C}}}");
+        try {
+            Interpreter.interpret(Demo.of(Algorithm.DFS, BAD_GRAPH, Node.of("A"), Node.of("E")));
+            fail("Duplicate edges are not allowed");
+        } catch (Exception changeThisLaterTODO) { //right now its catching a graphstream exception
+        }
     }
 
 }
