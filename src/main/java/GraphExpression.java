@@ -112,11 +112,10 @@ public class GraphExpression {
             Node next = i.next();
             dfslist.add(next);
             System.out.println("Found node: " + next.getId());
-            doDFS(next);
         }
+        dfslist.remove(0);
         
-        
-        
+        doDFS(dfslist.get(0));
 
     }
 //
