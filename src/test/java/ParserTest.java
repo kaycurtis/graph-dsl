@@ -52,4 +52,36 @@ public class ParserTest {
         Demo expected = Demo.of(Algorithm.BFS, GRAPH, A, C);
         assertThat(Parser.parse(demo)).isEqualTo(expected);
     }
+    
+    @Test
+    public void testBadParseGraphBadFormat() {
+        String demo = "{graph {A B C} {A to B} {B to C}}";
+        try {
+            Graph g = Parser.parseGraph(demo);
+            fail("supposed to throw parsing exception");
+        } catch (Parser.ParsingException p) {
+        }
+    }
+
+    @Test
+    public void testBadParseGraphNoNodes() {
+        // ?????????? do the nodes used in the edges list have to exist in the nodes list?
+
+        String demo = "{graph {} {{A to B} {B to C}}}";
+        try {
+            Graph g = Parser.parseGraph(demo);
+            fail("supposed to throw parsing exception");
+        } catch (Parser.ParsingException p) {
+        }
+    }
+
+    @Test
+    public void testParseGraphNoEdges() {
+        String demo = "{graph {A B C} {}}";
+        try {
+            Graph g = Parser.parseGraph(demo);
+        } catch (Parser.ParsingException p) {
+            fail("ok to have no edges");
+        }
+    }
 }
