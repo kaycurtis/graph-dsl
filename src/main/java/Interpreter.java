@@ -9,9 +9,11 @@ import org.joda.time.DateTime;
 import org.joda.time.Seconds;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.Stack;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -48,7 +50,7 @@ public class Interpreter {
         int i = 0;
         Node current = demo.getStart();
         while (true) {
-            nodeMap.get(current).setAttribute("ui.style", "fill-color: grey;size: 30px;");
+            nodeMap.get(current).setAttribute("ui.style", "fill-color: green;size: 30px;");
             current = TRAVERSAL_FUNCTIONS.get(demo.getAlgorithm()).apply(demo, i);
             if (current == null) {
                 display();
@@ -81,16 +83,22 @@ public class Interpreter {
     private static Node bfs(Demo demo, int i) {
         Node current = demo.getStart();
         Queue<Node> toTraverse = new LinkedList<>();
+        Set<Node> visited = new HashSet<>();
         toTraverse.add(current);
         for (int j = 0; j <= i; j++) {
             if (toTraverse.isEmpty()) {
                 return null;
             }
             current = toTraverse.remove();
-            if (current.equals(demo.getEnd())) {
-                return current;
+            if (!visited.contains(current)) {
+                if (current.equals(demo.getEnd())) {
+                    return current;
+                }
+                toTraverse.addAll(accessibleFrom(current, demo.getGraph().getEdges()));
+                visited.add(current);
+            } else {
+                i--; // we already visited this node, doesn't count
             }
-            toTraverse.addAll(accessibleFrom(current, demo.getGraph().getEdges()));
         }
         return current;
     }
@@ -105,15 +113,21 @@ public class Interpreter {
         Node current = demo.getStart();
         Stack<Node> toTraverse = new Stack<>();
         toTraverse.push(current);
+        Set<Node> visited = new HashSet<>();
         for (int j = 0; j <= i; j++) {
             if (toTraverse.isEmpty()) {
                 return null;
             }
             current = toTraverse.pop();
-            if (current.equals(demo.getEnd())) {
-                return current;
+            if (!visited.contains(current)) {
+                if (current.equals(demo.getEnd())) {
+                    return current;
+                }
+                accessibleFrom(current, demo.getGraph().getEdges()).forEach(toTraverse::push);
+                visited.add(current);
+            } else {
+                i--;
             }
-            accessibleFrom(current, demo.getGraph().getEdges()).forEach(toTraverse::push);
         }
         return current;
     }
