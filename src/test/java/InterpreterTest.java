@@ -1,4 +1,5 @@
 import model.Algorithm;
+import model.Demo;
 import model.Graph;
 import model.Node;
 import org.junit.Test;

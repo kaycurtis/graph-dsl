@@ -1,10 +1,10 @@
 import com.google.common.collect.ImmutableList;
 import model.Algorithm;
+import model.Demo;
 import model.Edge;
 import model.Graph;
 import model.Node;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;

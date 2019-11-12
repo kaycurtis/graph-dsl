@@ -1,5 +1,6 @@
 import com.google.common.collect.ImmutableMap;
 import model.Algorithm;
+import model.Demo;
 import model.Edge;
 import model.Node;
 import org.graphstream.graph.Graph;
@@ -7,7 +8,11 @@ import org.graphstream.graph.implementations.SingleGraph;
 import org.joda.time.DateTime;
 import org.joda.time.Seconds;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Stack;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -73,7 +78,7 @@ public class Interpreter {
      * - the destination node if it is reached before iteration i
      * - null if the algorithm fails before iteration i
      */
-    public static Node bfs(Demo demo, int i) {
+    private static Node bfs(Demo demo, int i) {
         Node current = demo.getStart();
         Queue<Node> toTraverse = new LinkedList<>();
         toTraverse.add(current);
@@ -96,7 +101,7 @@ public class Interpreter {
      * - the destination node if it is reached before iteration i
      * - null if the algorithm fails before iteration i
      */
-    public static Node dfs(Demo demo, int i) {
+    private static Node dfs(Demo demo, int i) {
         Node current = demo.getStart();
         Stack<Node> toTraverse = new Stack<>();
         toTraverse.push(current);

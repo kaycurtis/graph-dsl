@@ -1,5 +1,6 @@
 import com.google.common.collect.ImmutableList;
 import model.Algorithm;
+import model.Demo;
 import model.Edge;
 import model.Graph;
 import model.Node;

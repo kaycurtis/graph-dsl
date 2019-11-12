@@ -1,8 +1,6 @@
 package model;
 
 import lombok.Value;
-import model.Edge;
-import model.Node;
 
 import java.util.List;
 
