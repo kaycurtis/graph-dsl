@@ -5,7 +5,7 @@
   
 The below EBNF represents all legal programs in this language.
 
-```
+```scheme
 EBNF:
 <Demo>        ::= {do <Algorithm> on <Graph> from <Node> to <Node>}     <- currently the only top-level action allowed.
 <Graph>       ::= {graph {<Nodes>} {<Edges>}}
@@ -22,12 +22,12 @@ EBNF:
 ```
 
 To display the animation, wrap your program in the following code and run it:
-```
+```java
 Interpreter.interpret(Parser.parse(<your program>));
 ```
 
 Example:
-```
+```java
 Interpreter.interpret(Parser.parse("{do BFS on {graph {A B C} {{A to B} {B to C} {C to A}}} from A to C}"));
 ```
 will perform a BFS traversal starting at A and ending at C.
