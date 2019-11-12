@@ -4,9 +4,9 @@ import model.Edge;
 import model.Graph;
 import model.Node;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,7 +40,11 @@ public class Parser {
     private static final Pattern DEMO_PATTERN = Pattern.compile("\\{do (\\w+) on (.*) from (\\w+) to (\\w+)\\}");
 
     public static Demo parse(String concrete) {
-        return parseDemo(concrete);
+        try {
+            return parseDemo(concrete);
+        } catch (Exception e) {
+            throw new ParsingException("Unable to parse " + concrete);
+        }
     }
 
     static Node parseNode(String concrete) {
