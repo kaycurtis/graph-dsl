@@ -1,4 +1,8 @@
 import com.google.common.collect.ImmutableList;
+import model.Algorithm;
+import model.Edge;
+import model.Graph;
+import model.Node;
 import org.junit.Test;
 
 import java.util.List;
@@ -7,47 +11,44 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ParserTest {
 
-    private static final GraphExpression.Node A = GraphExpression.Node.of("A");
-    private static final GraphExpression.Node B = GraphExpression.Node.of("B");
-    private static final GraphExpression.Edge A_TO_B = GraphExpression.Edge.of(A, B);
-    private static final GraphExpression.Node C = GraphExpression.Node.of("C");
-    private static final GraphExpression.Edge C_TO_A = GraphExpression.Edge.of(C, A);
-    private static final GraphExpression.Edge B_TO_C = GraphExpression.Edge.of(B, C);
-    private static final GraphExpression.Nodes NODES = GraphExpression.Nodes.of(ImmutableList.of(A, B, C));
-    private static final GraphExpression.Edges EDGES = GraphExpression.Edges.of(ImmutableList.of(A_TO_B, B_TO_C, C_TO_A));
-    private static final GraphExpression.Graph GRAPH = GraphExpression.Graph.of(NODES, EDGES);
+    private static final Node A = Node.of("A");
+    private static final Node B = Node.of("B");
+    private static final Edge A_TO_B = Edge.of(A, B);
+    private static final Node C = Node.of("C");
+    private static final Edge C_TO_A = Edge.of(C, A);
+    private static final Edge B_TO_C = Edge.of(B, C);
+    private static final List<Node> NODES = ImmutableList.of(A, B, C);
+    private static final List<Edge> EDGES = ImmutableList.of(A_TO_B, B_TO_C, C_TO_A);
+    private static final Graph GRAPH = Graph.of(NODES, EDGES);
 
     @Test
     public void testNodeParse() {
-        assertThat(Parser.parse("A")).isEqualTo(A);
-        GraphExpression listResult = Parser.parse("{A B C}");
-        assertThat(listResult).isEqualTo(NODES);
-        assertThat(Parser.parse("{}")).isInstanceOf(GraphExpression.Nodes.class); // depends on order of parse functions
+        assertThat(Parser.parseNode("A")).isEqualTo(A);
+        assertThat(Parser.parseNodes("{A B C}")).isEqualTo(NODES);
+        assertThat(Parser.parseNodes("{}")).isEmpty();
     }
 
     @Test
     public void testEdgeParse() {
-        assertThat(Parser.parse("{A to B}")).isEqualTo(A_TO_B);
-        GraphExpression listResult = Parser.parse("{{A to B} {B to C} {C to A}}");
-        assertThat(listResult).isEqualTo(EDGES);
+        assertThat(Parser.parseEdge("{A to B}")).isEqualTo(A_TO_B);
+        assertThat(Parser.parseEdges("{{A to B} {B to C} {C to A}}")).isEqualTo(EDGES);
     }
 
     @Test
     public void testAlgorithm() {
-        assertThat(Parser.parse("BFS")).isEqualTo(GraphExpression.Algorithm.BFS);
+        assertThat(Parser.parseAlgorithm("BFS")).isEqualTo(Algorithm.BFS);
     }
 
     @Test
     public void testGraph() {
-        GraphExpression graph = Parser.parse("{graph {A B C} {{A to B} {B to C} {C to A}}}");
-        assertThat(graph).isEqualTo(GRAPH);
-        assertThat(Parser.parse("{graph {} {}}")).isInstanceOf(GraphExpression.Graph.class);
+        assertThat(Parser.parseGraph("{graph {A B C} {{A to B} {B to C} {C to A}}}")).isEqualTo(GRAPH);
+        Parser.parseGraph("{graph {} {}}"); // no exception
     }
 
     @Test
     public void testDemo() {
         String demo = "{do BFS on {graph {A B C} {{A to B} {B to C} {C to A}}} from A to C}";
-        GraphExpression.Demo expected = GraphExpression.Demo.of(GraphExpression.Algorithm.BFS, GRAPH, A, C);
+        Demo expected = Demo.of(Algorithm.BFS, GRAPH, A, C);
         assertThat(Parser.parse(demo)).isEqualTo(expected);
     }
 }
