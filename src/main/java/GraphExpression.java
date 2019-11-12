@@ -114,8 +114,9 @@ public class GraphExpression {
             System.out.println("Found node: " + next.getId());
         }
         dfslist.remove(0);
-        
-        doDFS(dfslist.get(0));
+        if (dfslist.size() > 0){
+            doDFS(dfslist.get(0));
+        }
 
     }
 //
