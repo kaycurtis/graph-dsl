@@ -84,4 +84,14 @@ public class ParserTest {
             fail("ok to have no edges");
         }
     }
+    
+    @Test
+    public void testParseGraphMissingKeywords() {
+        String demo = "{graph {A B C} {{A bar B} {B foo C}}}";
+        try {
+            Graph g = Parser.parseGraph(demo);
+            fail("missing keywords");
+        } catch (Parser.ParsingException p) {
+        }
+    }
 }
