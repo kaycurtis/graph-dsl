@@ -13,6 +13,7 @@ public class GraphExpression {
 
     private Graph graph;
     private int vertices; //??????
+    private List<Node> dfslist = new ArrayList<Node>();
 
     public static void main(String[] args) { // TODO - remove this later
         GraphExpression ge = new GraphExpression();
@@ -88,6 +89,7 @@ public class GraphExpression {
 
         switch (algorithmName) {
             case "DFS":
+                dfslist.add(startNode);
                 doDFS(startNode);
                 break;
             case "BFS":
@@ -108,8 +110,14 @@ public class GraphExpression {
 
         while (i.hasNext()) {
             Node next = i.next();
+            dfslist.add(next);
             System.out.println("Found node: " + next.getId());
+            doDFS(next);
         }
+        
+        
+        
+
     }
 //
     public void doBFS(Node startNode) {
