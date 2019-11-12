@@ -1,3 +1,4 @@
+import com.google.common.collect.ImmutableMap;
 import model.Algorithm;
 import model.Edge;
 import model.Node;
@@ -13,7 +14,10 @@ import java.util.stream.Collectors;
 public class Interpreter {
 
     // TODO add to this after POC
-    private static final Map<Algorithm, BiFunction<Demo, Integer, Node>> TRAVERSAL_FUNCTIONS = Collections.singletonMap(Algorithm.BFS, Interpreter::bfs);
+    private static final Map<Algorithm, BiFunction<Demo, Integer, Node>> TRAVERSAL_FUNCTIONS = ImmutableMap.of(
+            Algorithm.BFS, Interpreter::bfs,
+            Algorithm.DFS, Interpreter::dfs
+    );
 
     private static final int DISPLAY_SECONDS = 3;
 
@@ -82,6 +86,29 @@ public class Interpreter {
                 return current;
             }
             toTraverse.addAll(accessibleFrom(current, demo.getGraph().getEdges()));
+        }
+        return current;
+    }
+
+    /**
+     * Return either:
+     * - the node processed on the ith iteration of the DFS algorithm
+     * - the destination node if it is reached before iteration i
+     * - null if the algorithm fails before iteration i
+     */
+    public static Node dfs(Demo demo, int i) {
+        Node current = demo.getStart();
+        Stack<Node> toTraverse = new Stack<>();
+        toTraverse.push(current);
+        for (int j = 0; j <= i; j++) {
+            if (toTraverse.isEmpty()) {
+                return null;
+            }
+            current = toTraverse.pop();
+            if (current.equals(demo.getEnd())) {
+                return current;
+            }
+            accessibleFrom(current, demo.getGraph().getEdges()).forEach(toTraverse::push);
         }
         return current;
     }
