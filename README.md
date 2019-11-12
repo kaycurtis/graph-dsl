@@ -33,3 +33,5 @@ Interpreter.interpret(Parser.parse("{do BFS on {graph {A B C} {{A to B} {B to C}
 will perform a BFS traversal starting at A and ending at C.
 
 In the animation, the traversal colors the current visited node red, already visited nodes green, and once it reaches the end, yellow for the destination node.
+
+There are also examples in the InterpreterTest class in the test folder that you can run one by one to see sample animations.
