@@ -1,4 +1,8 @@
 import com.google.common.collect.ImmutableList;
+import model.Algorithm;
+import model.Edge;
+import model.Graph;
+import model.Node;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +13,23 @@ import java.util.regex.Pattern;
 
 public class Parser {
 
+    /**
+     * EBNF:
+     *
+     * <Demo>        ::= {do <Algorithm> on <Graph> from <Node> to <Node>}
+     * <Graph>       ::= {graph {<Nodes>} {<Edges>}}
+     * <Node>        ::= <string>
+     * <Edge>        ::= {<Node> to <Node>}
+     *                  | {<Node> to <Node> <number>}
+     * <Nodes>       ::=
+     *                  | <Node> <Nodes>
+     * <Edges>       ::=
+     *                  | <Edge> <Edges>
+     * <Algorithm>   ::= DFS
+     *                  | BFS
+     *                  | Dijkstra's
+     */
+
     private static final List<String> RESERVED = ImmutableList.of("to", "do", "on", "from", "graph", "DFS", "BFS", "DIJKSTRAS");
 
     private static final Pattern LIST_PATTERN = Pattern.compile("\\{(.*)\\}");
@@ -18,36 +39,22 @@ public class Parser {
     private static final Pattern GRAPH_PATTERN = Pattern.compile("\\{graph (\\{[\\w\\s]*\\}) (.*)\\}");
     private static final Pattern DEMO_PATTERN = Pattern.compile("\\{do (\\w+) on (.*) from (\\w+) to (\\w+)\\}");
 
-    private static final List<Function<String, GraphExpression>> parsingFunctions = ImmutableList.of(
-            Parser::parseNode,
-            Parser::parseNodes,
-            Parser::parseEdge,
-            Parser::parseEdges,
-            Parser::parseAlgorithm,
-            Parser::parseGraph,
-            Parser::parseDemo
-    );
-
-    public static GraphExpression parse(String concrete) {
-        return parsingFunctions.stream()
-                .map(func -> func.apply(concrete))
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElseThrow(() -> new ParsingException("Could not parse " + concrete));
+    public static Demo parse(String concrete) {
+        return parseDemo(concrete);
     }
 
-    private static GraphExpression.Node parseNode(String concrete) {
+    static Node parseNode(String concrete) {
         Matcher matcher = NODE_PATTERN.matcher(concrete);
         if (matcher.matches() && !RESERVED.contains(matcher.group(1))) {
-            return GraphExpression.Node.of(matcher.group(1));
+            return Node.of(matcher.group(1));
         }
-        return null;
+        throw new ParsingException(concrete + " did not match the expected pattern for a node");
     }
 
     private static <T> List<T> parseList(String concrete, Function<String, T> function) {
         Matcher matcher = LIST_PATTERN.matcher(concrete);
         if (!matcher.matches()) {
-            return null;
+            throw new ParsingException(concrete + " did not match the expected pattern for a list");
         }
         List<T> lst = new ArrayList<>();
         String[] concreteElements = matcher.group(1).split(" ");
@@ -60,70 +67,56 @@ public class Parser {
                 } while (!concreteElements[i].contains("}"));
             }
             if (concreteElement.length() != 0) {
-                T elem = function.apply(concreteElement);
-                if (elem == null) {
-                    return null;
-                }
-                lst.add(elem);
+                lst.add(function.apply(concreteElement));
             }
         }
         return lst;
     }
 
-    private static GraphExpression.Nodes parseNodes(String concrete) {
-        List<GraphExpression.Node> nodes = parseList(concrete, Parser::parseNode);
-        return nodes == null ? null : GraphExpression.Nodes.of(nodes);
+    static List<Node> parseNodes(String concrete) {
+        return parseList(concrete, Parser::parseNode);
     }
 
-    private static GraphExpression.Edge parseEdge(String concrete) {
+    static Edge parseEdge(String concrete) {
         Matcher matcher = EDGE_PATTERN.matcher(concrete);
         if (!matcher.matches()) {
-            return null;
+            throw new ParsingException(concrete + " did not match the expected pattern for an edge");
         }
-        GraphExpression.Node start = parseNode(matcher.group(1));
-        GraphExpression.Node end = parseNode(matcher.group(2));
-        if (start == null || end == null) {
-            return null;
-        }
-        return GraphExpression.Edge.of(start, end);
+        Node start = parseNode(matcher.group(1));
+        Node end = parseNode(matcher.group(2));
+        return Edge.of(start, end);
     }
 
-    private static GraphExpression.Edges parseEdges(String concrete) {
-        List<GraphExpression.Edge> edges = parseList(concrete, Parser::parseEdge);
-        return edges == null ? null : GraphExpression.Edges.of(edges);
+    static List<Edge> parseEdges(String concrete) {
+        return parseList(concrete, Parser::parseEdge);
     }
 
-    private static GraphExpression.Graph parseGraph(String concrete) {
+    static Graph parseGraph(String concrete) {
         Matcher matcher = GRAPH_PATTERN.matcher(concrete);
         if (!matcher.matches()) {
-            return null;
+            throw new ParsingException(concrete + " did not match the expected pattern for a graph");
         }
-        GraphExpression.Nodes nodes = parseNodes(matcher.group(1));
-        GraphExpression.Edges edges = parseEdges(matcher.group(2));
-        if (nodes == null || edges == null) {
-            return null;
-        }
-        return GraphExpression.Graph.of(nodes, edges);
+        List<Node> nodes = parseNodes(matcher.group(1));
+        List<Edge> edges = parseEdges(matcher.group(2));
+        return Graph.of(nodes, edges);
     }
 
-    private static GraphExpression.Demo parseDemo(String concrete) {
+    private static Demo parseDemo(String concrete) {
         Matcher matcher = DEMO_PATTERN.matcher(concrete);
         if (!matcher.matches()) {
-            return null;
+            throw new ParsingException(concrete + " did not match the expected pattern for a demo");
         }
-        GraphExpression.Algorithm algorithm = parseAlgorithm(matcher.group(1));
-        GraphExpression.Graph graph = parseGraph(matcher.group(2));
-        GraphExpression.Node start = parseNode(matcher.group(3));
-        GraphExpression.Node end = parseNode(matcher.group(4));
-        if (algorithm == null || graph == null || start == null || end == null) {
-            return null;
-        }
-        return GraphExpression.Demo.of(algorithm, graph, start, end);
+        Algorithm algorithm = parseAlgorithm(matcher.group(1));
+        Graph graph = parseGraph(matcher.group(2));
+        Node start = parseNode(matcher.group(3));
+        Node end = parseNode(matcher.group(4));
+
+        return Demo.of(algorithm, graph, start, end);
     }
 
-    private static GraphExpression.Algorithm parseAlgorithm(String concrete) {
+    static Algorithm parseAlgorithm(String concrete) {
         try {
-            return GraphExpression.Algorithm.valueOf(concrete);
+            return Algorithm.valueOf(concrete);
         } catch (IllegalArgumentException | NullPointerException e) {
             return null;
         }
