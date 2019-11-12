@@ -11,6 +11,7 @@ import org.joda.time.Seconds;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -29,6 +30,9 @@ public class Interpreter {
     private static final int DISPLAY_SECONDS = 3;
 
     public static void interpret(Demo demo) {
+
+        validateDemo(demo);
+
         System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
         Graph graph = new SingleGraph("Graph");
         Map<Node, org.graphstream.graph.Node> nodeMap = new HashMap<>();
@@ -45,12 +49,38 @@ public class Interpreter {
         doAnimation(demo, graph, nodeMap);
     }
 
+    private static void validateDemo(Demo demo) {
+        model.Graph graph = demo.getGraph();
+        List<Edge> edges = graph.getEdges();
+        if (new HashSet<>(edges).size() != edges.size()) {
+            throw new InterpreterException("Duplicate edges");
+        }
+        List<Node> nodes = graph.getNodes();
+        if (new HashSet<>(nodes).size() != nodes.size()) {
+            throw new InterpreterException("Duplicate nodes");
+        }
+        for (Edge edge: edges) {
+            if (!nodes.contains(edge.getStart())) {
+                throw new InterpreterException("Node " + edge.getStart() + " does not exist");
+            }
+            if (!nodes.contains(edge.getEnd())) {
+                throw new InterpreterException("Node " + edge.getEnd() + " does not exist");
+            }
+        }
+        if (!nodes.contains(demo.getStart())) {
+            throw new InterpreterException("Demo must begin with a node that exists in the graph");
+        }
+        // non-existent end node is ok
+    }
+
     private static void doAnimation(Demo demo, Graph graph, Map<Node, org.graphstream.graph.Node> nodeMap) {
         graph.display();
         int i = 0;
-        Node current = demo.getStart();
+        Node current = null;
         while (true) {
-            nodeMap.get(current).setAttribute("ui.style", "fill-color: green;size: 30px;");
+            if (current != null) {
+                nodeMap.get(current).setAttribute("ui.style", "fill-color: green;size: 30px;");
+            }
             current = TRAVERSAL_FUNCTIONS.get(demo.getAlgorithm()).apply(demo, i);
             if (current == null) {
                 display();
@@ -97,7 +127,7 @@ public class Interpreter {
                 toTraverse.addAll(accessibleFrom(current, demo.getGraph().getEdges()));
                 visited.add(current);
             } else {
-                i--; // we already visited this node, doesn't count
+                j--; // we already visited this node, doesn't count
             }
         }
         return current;
@@ -126,7 +156,7 @@ public class Interpreter {
                 accessibleFrom(current, demo.getGraph().getEdges()).forEach(toTraverse::push);
                 visited.add(current);
             } else {
-                i--;
+                j--;
             }
         }
         return current;
@@ -137,5 +167,10 @@ public class Interpreter {
                 .filter(edge -> edge.getStart().equals(begin))
                 .map(Edge::getEnd)
                 .collect(Collectors.toList());
+    }
+
+    private static class InterpreterException extends RuntimeException {
+        public InterpreterException(String message) {
+        }
     }
 }
