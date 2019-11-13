@@ -29,6 +29,10 @@ public class Interpreter {
 
     private static final int DISPLAY_SECONDS = 3;
 
+    public static void run(String concrete) {
+        Interpreter.interpret(Parser.parse(concrete));
+    }
+    
     public static void interpret(Demo demo) {
 
         validateDemo(demo);
