@@ -173,8 +173,4 @@ public class Interpreter {
                 .collect(Collectors.toList());
     }
 
-    private static class InterpreterException extends RuntimeException {
-        public InterpreterException(String message) {
-        }
-    }
 }

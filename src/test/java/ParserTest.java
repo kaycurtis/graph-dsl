@@ -52,4 +52,31 @@ public class ParserTest {
         Demo expected = Demo.of(Algorithm.BFS, GRAPH, A, C);
         assertThat(Parser.parse(demo)).isEqualTo(expected);
     }
+
+    @Test(expected = ParsingException.class)
+    public void testBadParseGraphBadFormat() {
+        String demo = "{graph {A B C} {A to B} {B to C}}";
+        Parser.parseGraph(demo);
+    }
+
+    @Test
+    public void testBadParseGraphNoNodes() {
+        String demo = "{graph {} {{A to B} {B to C}}}";
+        Graph g = Parser.parseGraph(demo);
+        assertThat(g.getNodes()).isEmpty();
+    }
+
+    @Test
+    public void testParseGraphNoEdges() {
+        String demo = "{graph {A B C} {}}";
+        Graph g = Parser.parseGraph(demo);
+        assertThat(g.getEdges()).isEmpty();
+    }
+
+    @Test(expected = ParsingException.class)
+    public void testParseGraphMissingKeywords() {
+        String demo = "{graph {A B C} {{A bar B} {B foo C}}}";
+        Parser.parseGraph(demo);
+
+    }
 }
