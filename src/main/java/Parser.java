@@ -122,13 +122,8 @@ public class Parser {
         try {
             return Algorithm.valueOf(concrete);
         } catch (IllegalArgumentException | NullPointerException e) {
-            return null;
+            throw new ParsingException("Unrecognized algorithm " + concrete);
         }
     }
 
-    public static class ParsingException extends RuntimeException {
-        public ParsingException(String message) {
-            super(message);
-        }
-    }
 }

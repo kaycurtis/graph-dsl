@@ -52,46 +52,31 @@ public class ParserTest {
         Demo expected = Demo.of(Algorithm.BFS, GRAPH, A, C);
         assertThat(Parser.parse(demo)).isEqualTo(expected);
     }
-    
-    @Test
+
+    @Test(expected = ParsingException.class)
     public void testBadParseGraphBadFormat() {
         String demo = "{graph {A B C} {A to B} {B to C}}";
-        try {
-            Graph g = Parser.parseGraph(demo);
-            fail("supposed to throw parsing exception");
-        } catch (Parser.ParsingException p) {
-        }
+        Parser.parseGraph(demo);
     }
 
     @Test
     public void testBadParseGraphNoNodes() {
-        // ?????????? do the nodes used in the edges list have to exist in the nodes list?
-
         String demo = "{graph {} {{A to B} {B to C}}}";
-        try {
-            Graph g = Parser.parseGraph(demo);
-            fail("supposed to throw parsing exception");
-        } catch (Parser.ParsingException p) {
-        }
+        Graph g = Parser.parseGraph(demo);
+        assertThat(g.getNodes()).isEmpty();
     }
 
     @Test
     public void testParseGraphNoEdges() {
         String demo = "{graph {A B C} {}}";
-        try {
-            Graph g = Parser.parseGraph(demo);
-        } catch (Parser.ParsingException p) {
-            fail("ok to have no edges");
-        }
+        Graph g = Parser.parseGraph(demo);
+        assertThat(g.getEdges()).isEmpty();
     }
-    
-    @Test
+
+    @Test(expected = ParsingException.class)
     public void testParseGraphMissingKeywords() {
         String demo = "{graph {A B C} {{A bar B} {B foo C}}}";
-        try {
-            Graph g = Parser.parseGraph(demo);
-            fail("missing keywords");
-        } catch (Parser.ParsingException p) {
-        }
+        Parser.parseGraph(demo);
+
     }
 }

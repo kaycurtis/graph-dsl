@@ -23,13 +23,11 @@ public class InterpreterTest {
         Interpreter.interpret(Demo.of(Algorithm.DFS, GRAPH, Node.of("A"), Node.of("F")));
     }
     
-    // not sure if this is doing the right thing ???
     @Test
     public void testBfsBig() {
         Interpreter.interpret(Demo.of(Algorithm.BFS, GRAPH2, Node.of("A"), Node.of("E")));
     }
 
-    // not sure if this is doing the right thing ???
     @Test
     public void testDfsBig() {
         Interpreter.interpret(Demo.of(Algorithm.DFS, GRAPH2, Node.of("A"), Node.of("E")));
@@ -40,13 +38,11 @@ public class InterpreterTest {
         Interpreter.interpret(Demo.of(Algorithm.BFS, GRAPH3, Node.of("A"), Node.of("B")));
     }
 
-    // TODO infinite loop if cycle for DFS (???)
     @Test
     public void testDfsCycle() {
         Interpreter.interpret(Demo.of(Algorithm.DFS, GRAPH3, Node.of("A"), Node.of("B")));
     }
 
-    // TODO: infinite loop if the end node doesn't exist
     @Test
     public void testBfsNonexistentEnd() {
         Interpreter.interpret(Demo.of(Algorithm.BFS, SIMPLE_GRAPH, Node.of("A"), Node.of("E")));
@@ -67,15 +63,27 @@ public class InterpreterTest {
         Interpreter.interpret(Demo.of(Algorithm.DFS, GRAPH4, Node.of("A"), Node.of("E")));
     }
 
-    @Test
+    @Test(expected = InterpreterException.class)
     public void testDfsGraphDuplicateEdge() {
-        // todo - should duplicate nodes/edges be checked for in parsing or interpreting?
         Graph BAD_GRAPH = Parser.parseGraph("{graph {A B C} {{A to B} {B to C} {B to C}}}");
-        try {
-            Interpreter.interpret(Demo.of(Algorithm.DFS, BAD_GRAPH, Node.of("A"), Node.of("E")));
-            fail("Duplicate edges are not allowed");
-        } catch (Exception changeThisLaterTODO) { //right now its catching a graphstream exception
-        }
+        Interpreter.interpret(Demo.of(Algorithm.DFS, BAD_GRAPH, Node.of("A"), Node.of("E")));
     }
 
+    @Test(expected = InterpreterException.class)
+    public void edgeNodesNotInGraph() {
+        Graph BAD_GRAPH = Parser.parseGraph("{graph {A B C} {{A to E}}}");
+        Interpreter.interpret(Demo.of(Algorithm.DFS, BAD_GRAPH, Node.of("A"), Node.of("E")));
+    }
+
+    @Test(expected = InterpreterException.class)
+    public void duplicateNodes() {
+        Graph BAD_GRAPH = Parser.parseGraph("{graph {A B B} {{A to B} {B to A}}}");
+        Interpreter.interpret(Demo.of(Algorithm.DFS, BAD_GRAPH, Node.of("A"), Node.of("E")));
+    }
+
+    @Test(expected = InterpreterException.class)
+    public void startNodeNodeInGraph() {
+        Graph BAD_GRAPH = Parser.parseGraph("{graph {A B C} {{A to B} {B to C} {B to A}}}");
+        Interpreter.interpret(Demo.of(Algorithm.DFS, BAD_GRAPH, Node.of("E"), Node.of("A")));
+    }
 }
