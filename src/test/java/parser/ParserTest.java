@@ -1,3 +1,5 @@
+package parser;
+
 import com.google.common.collect.ImmutableList;
 import model.Algorithm;
 import model.Demo;

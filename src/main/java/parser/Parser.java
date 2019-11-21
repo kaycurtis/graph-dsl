@@ -1,3 +1,6 @@
+package parser;
+
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import model.Algorithm;
 import model.Demo;
@@ -95,7 +98,8 @@ public class Parser {
         return parseList(concrete, Parser::parseEdge);
     }
 
-    static Graph parseGraph(String concrete) {
+    @VisibleForTesting
+    public static Graph parseGraph(String concrete) {
         Matcher matcher = GRAPH_PATTERN.matcher(concrete);
         if (!matcher.matches()) {
             throw new ParsingException(concrete + " did not match the expected pattern for a graph");
