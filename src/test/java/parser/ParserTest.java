@@ -16,13 +16,19 @@ public class ParserTest {
 
     private static final Node A = Node.of("A");
     private static final Node B = Node.of("B");
-    private static final Edge A_TO_B = Edge.of(A, B);
+    private static final Edge A_TO_B = Edge.of(A, B, null);
     private static final Node C = Node.of("C");
-    private static final Edge C_TO_A = Edge.of(C, A);
-    private static final Edge B_TO_C = Edge.of(B, C);
+    private static final Edge C_TO_A = Edge.of(C, A, null);
+    private static final Edge B_TO_C = Edge.of(B, C, null);
     private static final List<Node> NODES = ImmutableList.of(A, B, C);
     private static final List<Edge> EDGES = ImmutableList.of(A_TO_B, B_TO_C, C_TO_A);
     private static final Graph GRAPH = Graph.of(NODES, EDGES);
+    private static final Graph WEIGHTED_GRAPH = Graph.of(
+            NODES,
+            ImmutableList.of(Edge.of(A, B, 1.0),
+                    Edge.of(B, C, 2.0),
+                    Edge.of(C, A, 1.5)
+            ));
 
     @Test
     public void testNodeParse() {
@@ -46,6 +52,11 @@ public class ParserTest {
     public void testGraph() {
         assertThat(Parser.parseGraph("{graph {A B C} {{A to B} {B to C} {C to A}}}")).isEqualTo(GRAPH);
         Parser.parseGraph("{graph {} {}}"); // no exception
+    }
+
+    @Test
+    public void testGraphWeighted() {
+        assertThat(Parser.parseGraph("{graph {A B C} {{A to B 1} {B to C 2.0} {C to A 1.5}}}")).isEqualTo(WEIGHTED_GRAPH);
     }
 
     @Test
@@ -79,6 +90,5 @@ public class ParserTest {
     public void testParseGraphMissingKeywords() {
         String demo = "{graph {A B C} {{A bar B} {B foo C}}}";
         Parser.parseGraph(demo);
-
     }
 }
