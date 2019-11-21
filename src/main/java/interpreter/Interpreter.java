@@ -57,6 +57,7 @@ public class Interpreter {
         ANIMATION_FUNCTION_SUPPLIERS.get(demo.getAlgorithm()).accept(demo, nodeMap);
     }
 
+    @SuppressWarnings("unchecked") // i checked
     private static void doSearchAnimation(Demo demo, Map<Node, org.graphstream.graph.Node> nodeMap) {
         SearchSnapshot searchSnapshot = (SearchSnapshot) SNAPSHOT_SUPPLIERS.get(demo.getAlgorithm()).get();
         searchSnapshot.getNodeAdder().accept(demo.getStart());

@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @Data
-public class SearchSnapshot<T extends Collection<Node>> implements Snapshot {
+public abstract class SearchSnapshot<T extends Collection<Node>> implements Snapshot {
     Set<Node> visited = new HashSet<>();
     T toTraverse;
     Supplier<Node> nextNodeProvider;
