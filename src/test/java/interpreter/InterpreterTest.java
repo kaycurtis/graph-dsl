@@ -15,6 +15,8 @@ public class InterpreterTest {
     private static final Graph SIMPLE_GRAPH = Parser.parseGraph("{graph {A B C} {{A to B} {B to C} {C to A}}}");
     private static final Graph GRAPH3 = Parser.parseGraph("{graph {A B} {{A to B} {A to A} {B to A}}}");
     private static final Graph GRAPH4 = Parser.parseGraph("{graph {A B C D E F} {{A to B} {A to C} {D to E} {D to F}}}");
+    private static final Graph PRETTY_GRAPH = Parser.parseGraph("{graph {A B C D E F G H I J K L M N O P} " +
+            "{{A to B} {A to C} {A to D} {A to E} {A to F} {B to G} {B to H} {C to I} {C to J} {D to K} {D to L} {E to M} {E to N} {F to O} {F to P}}}");
 
     @Test
     public void testBfs() {
@@ -88,6 +90,16 @@ public class InterpreterTest {
     public void startNodeNodeInGraph() {
         Graph BAD_GRAPH = Parser.parseGraph("{graph {A B C} {{A to B} {B to C} {B to A}}}");
         Interpreter.interpret(Demo.of(Algorithm.DFS, BAD_GRAPH, Node.of("E"), Node.of("A")));
+    }
+
+    @Test
+    public void testPrettyBFS() {
+        Interpreter.interpret(Demo.of(Algorithm.BFS, PRETTY_GRAPH, Node.of("A"), Node.of("P")));
+    }
+
+    @Test
+    public void testPrettyDFS() {
+        Interpreter.interpret(Demo.of(Algorithm.DFS, PRETTY_GRAPH, Node.of("A"), Node.of("G")));
     }
 
     @Test
