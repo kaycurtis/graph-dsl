@@ -1,8 +1,13 @@
+package interpreter;
+
+import interpreter.Interpreter;
+import interpreter.InterpreterException;
 import model.Algorithm;
 import model.Demo;
 import model.Graph;
 import model.Node;
 import org.junit.Test;
+import parser.Parser;
 
 public class InterpreterTest {
 
