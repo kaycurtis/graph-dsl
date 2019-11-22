@@ -1,7 +1,5 @@
 package interpreter;
 
-import interpreter.Interpreter;
-import interpreter.InterpreterException;
 import model.Algorithm;
 import model.Demo;
 import model.Graph;
@@ -90,5 +88,11 @@ public class InterpreterTest {
     public void startNodeNodeInGraph() {
         Graph BAD_GRAPH = Parser.parseGraph("{graph {A B C} {{A to B} {B to C} {B to A}}}");
         Interpreter.interpret(Demo.of(Algorithm.DFS, BAD_GRAPH, Node.of("E"), Node.of("A")));
+    }
+
+    @Test
+    public void testDijkstra() {
+        Graph graph = Parser.parseGraph("{graph {A B C D E F} {{A to B 3} {A to D 1.5} {A to C 4} {C to E 1} {D to E 2} {D to F 3}}}");
+        Interpreter.interpret(Demo.of(Algorithm.DIJKSTRAS, graph, Node.of("A"), Node.of("E")));
     }
 }

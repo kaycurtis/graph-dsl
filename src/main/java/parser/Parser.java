@@ -37,7 +37,7 @@ public class Parser {
 
     private static final Pattern LIST_PATTERN = Pattern.compile("\\{(.*)\\}");
     private static final Pattern NODE_PATTERN = Pattern.compile("([A-Za-z0-9]+)");
-    private static final Pattern EDGE_PATTERN = Pattern.compile("\\{(.*) to (.*)\\}");
+    private static final Pattern EDGE_PATTERN = Pattern.compile("\\{(.*) to (\\w+)( [\\d\\.]+)?\\}");
     // [\w\s]* is to match node list, hacky way to get around regex issues
     private static final Pattern GRAPH_PATTERN = Pattern.compile("\\{graph (\\{[\\w\\s]*\\}) (.*)\\}");
     private static final Pattern DEMO_PATTERN = Pattern.compile("\\{do (\\w+) on (.*) from (\\w+) to (\\w+)\\}");
@@ -91,7 +91,19 @@ public class Parser {
         }
         Node start = parseNode(matcher.group(1));
         Node end = parseNode(matcher.group(2));
-        return Edge.of(start, end);
+        Double cost = getCost(matcher.group(3));
+        return Edge.of(start, end, cost); //TODO
+    }
+
+    private static Double getCost(String str) {
+        if (str == null || str.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            return Double.parseDouble(str.trim());
+        } catch (NumberFormatException e) {
+            throw new ParsingException("Malformed edge cost!");
+        }
     }
 
     static List<Edge> parseEdges(String concrete) {

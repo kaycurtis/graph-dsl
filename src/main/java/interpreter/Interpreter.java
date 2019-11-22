@@ -11,6 +11,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Seconds;
 import parser.Parser;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,9 +29,10 @@ public class Interpreter {
             Algorithm.BFS, BfsSnapshot::new);
 
     // might need to make this a function if we need more arguments for djikstra
-    private static final Map<Algorithm, BiConsumer<Demo, Map<Node, org.graphstream.graph.Node>>> ANIMATION_FUNCTION_SUPPLIERS = ImmutableMap.of(
+    private static final Map<Algorithm, BiConsumer<Demo, GraphStreamGraph>> ANIMATION_FUNCTION_SUPPLIERS = ImmutableMap.of(
             Algorithm.DFS, Interpreter::doSearchAnimation,
-            Algorithm.BFS, Interpreter::doSearchAnimation
+            Algorithm.BFS, Interpreter::doSearchAnimation,
+            Algorithm.DIJKSTRAS, Interpreter::doDjikstraAnimation
     );
 
     private static final int DISPLAY_SECONDS = 3;
@@ -44,6 +46,7 @@ public class Interpreter {
         System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
         Graph graph = new SingleGraph("Graph");
         Map<Node, org.graphstream.graph.Node> nodeMap = new HashMap<>();
+        Map<Edge, org.graphstream.graph.Edge> edgeMap = new HashMap<>();
         for (Node node : demo.getGraph().getNodes()) {
             org.graphstream.graph.Node gNode = graph.addNode(node.getName());
             gNode.addAttribute("ui.style", "fill-color: grey;size: 30px;");
@@ -51,21 +54,29 @@ public class Interpreter {
             nodeMap.put(node, gNode);
         }
         for (Edge edge : demo.getGraph().getEdges()) {
-            graph.addEdge(edge.getStart().getName() + edge.getEnd().getName(), edge.getStart().getName(), edge.getEnd().getName(), true);
+            org.graphstream.graph.Edge gEdge = graph.addEdge(edge.getStart().getName() + edge.getEnd().getName(),
+                    edge.getStart().getName(), edge.getEnd().getName(), true);
+            if (edge.getWeight() != null) {
+                gEdge.setAttribute("weight", edge.getWeight());
+                gEdge.addAttribute("ui.label", edge.getWeight());
+            }
+            edgeMap.put(edge, gEdge);
         }
         graph.display();
-        ANIMATION_FUNCTION_SUPPLIERS.get(demo.getAlgorithm()).accept(demo, nodeMap);
+        ANIMATION_FUNCTION_SUPPLIERS.get(demo.getAlgorithm()).accept(demo, GraphStreamGraph.of(nodeMap, edgeMap));
     }
 
     @SuppressWarnings("unchecked") // i checked
-    private static void doSearchAnimation(Demo demo, Map<Node, org.graphstream.graph.Node> nodeMap) {
+    private static void doSearchAnimation(Demo demo, GraphStreamGraph graphStreamGraph) {
+        Map<Node, org.graphstream.graph.Node> nodes = graphStreamGraph.getNodes();
+
         SearchSnapshot searchSnapshot = (SearchSnapshot) SNAPSHOT_SUPPLIERS.get(demo.getAlgorithm()).get();
         searchSnapshot.getNodeAdder().accept(demo.getStart());
 
         while (true) {
             Node current = searchSnapshot.getCurrent();
             if (current != null) {
-                nodeMap.get(current).setAttribute("ui.style", "fill-color: green;size: 30px;");
+                nodes.get(current).setAttribute("ui.style", "fill-color: green;size: 30px;");
             }
             searchSnapshot = search(demo, searchSnapshot);
             current = searchSnapshot.getCurrent();
@@ -74,13 +85,55 @@ public class Interpreter {
                 return;
             }
             if (current.equals(demo.getEnd())) {
-                nodeMap.get(current).setAttribute("ui.style", "fill-color: yellow;size: 30px;");
+                nodes.get(current).setAttribute("ui.style", "fill-color: yellow;size: 30px;");
                 display();
                 return;
             }
-            nodeMap.get(current).setAttribute("ui.style", "fill-color: red;size: 30px;");
+            nodes.get(current).setAttribute("ui.style", "fill-color: red;size: 30px;");
             display();
         }
+    }
+
+    private static void doDjikstraAnimation(Demo demo, GraphStreamGraph graphStreamGraph) {
+        DijkstraSnapshot dijkstraSnapshot = new DijkstraSnapshot(demo);
+        while (true) {
+            dijkstraSnapshot.getPath().forEach(edge ->
+                    graphStreamGraph.getEdge(edge).setAttribute("ui.style", "fill-color: black;"));
+            dijkstraSnapshot = search(demo, dijkstraSnapshot);
+            if (dijkstraSnapshot.getCurrent() == null) {
+                display();
+                return;
+            }
+            for (Edge edge : dijkstraSnapshot.getPath()) {
+                graphStreamGraph.getEdge(edge).setAttribute("ui.style", "fill-color: green;");
+            }
+            if (dijkstraSnapshot.getCurrent().equals(demo.getEnd())) {
+                graphStreamGraph.getNode(dijkstraSnapshot.getCurrent()).setAttribute("ui.style", "fill-color: yellow;size: 30px;");
+                getPath(demo.getStart(), demo.getEnd(), dijkstraSnapshot.getPath()).forEach(edge ->
+                        graphStreamGraph.getEdge(edge).setAttribute("ui.style", "fill-color: red;"));
+                display();
+                return;
+            }
+            display();
+        }
+    }
+
+    private static List<Edge> getPath(Node start, Node end, List<Edge> path) {
+        List<Edge> edges = new ArrayList<>();
+        Node current = end;
+        while (!current.equals(start)) {
+            Edge edgeEndingInCurrent = getEdgeTo(path, current);
+            edges.add(edgeEndingInCurrent);
+            current = edgeEndingInCurrent.getStart();
+        }
+        return edges;
+    }
+
+    private static Edge getEdgeTo(List<Edge> edges, Node node) {
+        return edges.stream()
+                .filter(edge -> edge.getEnd().equals(node))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("yikes"));
     }
 
     private static void display() {
@@ -113,10 +166,37 @@ public class Interpreter {
         return search(demo, searchSnapshot);
     }
 
-    public static java.util.List<Node> accessibleFrom(Node begin, java.util.List<Edge> edges) {
+    private static DijkstraSnapshot search(Demo demo, DijkstraSnapshot dijkstraSnapshot) {
+        List<Node> toTraverse = dijkstraSnapshot.getToTraverse();
+        if (toTraverse.isEmpty()) {
+            dijkstraSnapshot.setCurrent(null);
+            return dijkstraSnapshot;
+        }
+        Node current = dijkstraSnapshot.getNext();
+        dijkstraSnapshot.setCurrent(current);
+        if (current.equals(demo.getEnd())) {
+            return dijkstraSnapshot;
+        }
+        for (Edge edge: outgoingEdges(current, demo.getGraph().getEdges())) {
+            double alt = dijkstraSnapshot.getDist().get(current) + edge.getWeight();
+            if (alt < dijkstraSnapshot.getDist().get(edge.getEnd())) {
+                dijkstraSnapshot.getDist().put(edge.getEnd(), alt);
+                dijkstraSnapshot.insertEdge(edge);
+            }
+        }
+        return dijkstraSnapshot;
+    }
+
+    public static List<Node> accessibleFrom(Node begin, List<Edge> edges) {
         return edges.stream()
                 .filter(edge -> edge.getStart().equals(begin))
                 .map(Edge::getEnd)
+                .collect(Collectors.toList());
+    }
+
+    public static List<Edge> outgoingEdges(Node begin, List<Edge> edges) {
+        return edges.stream()
+                .filter(edge -> edge.getStart().equals(begin))
                 .collect(Collectors.toList());
     }
 

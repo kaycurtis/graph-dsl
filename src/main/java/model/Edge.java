@@ -6,5 +6,5 @@ import lombok.Value;
 public class Edge {
     Node start;
     Node end;
-   // add cost after POC
+    Double weight;
 }
