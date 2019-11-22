@@ -38,12 +38,10 @@ public class DijkstraSnapshot implements Snapshot {
     }
 
     public void insertEdge(Edge edge) {
-        System.out.println("Inserting edge " + edge);
         path.stream()
-                .filter(existingEdge -> existingEdge.getStart().equals(edge.getStart()))
+                .filter(existingEdge -> existingEdge.getEnd().equals(edge.getEnd()))
                 .findFirst()
                 .ifPresent(existingEdge -> path.remove(existingEdge));
         path.add(edge);
-        System.out.println(path);
     }
 }

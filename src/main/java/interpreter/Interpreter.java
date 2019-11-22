@@ -11,6 +11,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Seconds;
 import parser.Parser;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,6 +58,7 @@ public class Interpreter {
                     edge.getStart().getName(), edge.getEnd().getName(), true);
             if (edge.getWeight() != null) {
                 gEdge.setAttribute("weight", edge.getWeight());
+                gEdge.addAttribute("ui.label", edge.getWeight());
             }
             edgeMap.put(edge, gEdge);
         }
@@ -107,11 +109,31 @@ public class Interpreter {
             }
             if (dijkstraSnapshot.getCurrent().equals(demo.getEnd())) {
                 graphStreamGraph.getNode(dijkstraSnapshot.getCurrent()).setAttribute("ui.style", "fill-color: yellow;size: 30px;");
+                getPath(demo.getStart(), demo.getEnd(), dijkstraSnapshot.getPath()).forEach(edge ->
+                        graphStreamGraph.getEdge(edge).setAttribute("ui.style", "fill-color: red;"));
                 display();
                 return;
             }
             display();
         }
+    }
+
+    private static List<Edge> getPath(Node start, Node end, List<Edge> path) {
+        List<Edge> edges = new ArrayList<>();
+        Node current = end;
+        while (!current.equals(start)) {
+            Edge edgeEndingInCurrent = getEdgeTo(path, current);
+            edges.add(edgeEndingInCurrent);
+            current = edgeEndingInCurrent.getStart();
+        }
+        return edges;
+    }
+
+    private static Edge getEdgeTo(List<Edge> edges, Node node) {
+        return edges.stream()
+                .filter(edge -> edge.getEnd().equals(node))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("yikes"));
     }
 
     private static void display() {
@@ -151,7 +173,6 @@ public class Interpreter {
             return dijkstraSnapshot;
         }
         Node current = dijkstraSnapshot.getNext();
-        System.out.println(current);
         dijkstraSnapshot.setCurrent(current);
         if (current.equals(demo.getEnd())) {
             return dijkstraSnapshot;
