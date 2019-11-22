@@ -35,7 +35,8 @@ public class Interpreter {
             Algorithm.DIJKSTRAS, Interpreter::doDjikstraAnimation
     );
 
-    private static final int DISPLAY_SECONDS = 3;
+    private static final int SLOW_STEP_SECONDS = 3;
+    private static final int FAST_STEP_SECONDS = 1;
 
     public static void run(String concrete) {
         Interpreter.interpret(Parser.parse(concrete));
@@ -63,6 +64,7 @@ public class Interpreter {
             edgeMap.put(edge, gEdge);
         }
         graph.display();
+        display(SLOW_STEP_SECONDS);
         ANIMATION_FUNCTION_SUPPLIERS.get(demo.getAlgorithm()).accept(demo, GraphStreamGraph.of(nodeMap, edgeMap));
     }
 
@@ -81,40 +83,43 @@ public class Interpreter {
             searchSnapshot = search(demo, searchSnapshot);
             current = searchSnapshot.getCurrent();
             if (current == null) {
-                display();
+                display(SLOW_STEP_SECONDS);
                 return;
             }
             if (current.equals(demo.getEnd())) {
                 nodes.get(current).setAttribute("ui.style", "fill-color: yellow;size: 30px;");
-                display();
+                display(SLOW_STEP_SECONDS);
                 return;
             }
             nodes.get(current).setAttribute("ui.style", "fill-color: red;size: 30px;");
-            display();
+            display(SLOW_STEP_SECONDS);
         }
     }
 
     private static void doDjikstraAnimation(Demo demo, GraphStreamGraph graphStreamGraph) {
         DijkstraSnapshot dijkstraSnapshot = new DijkstraSnapshot(demo);
         while (true) {
-            dijkstraSnapshot.getPath().forEach(edge ->
-                    graphStreamGraph.getEdge(edge).setAttribute("ui.style", "fill-color: black;"));
+            List<Edge> oldPath = new ArrayList<>(dijkstraSnapshot.getPath());
+            graphStreamGraph.getEdges().values().forEach(edge ->
+                    edge.setAttribute("ui.style", "fill-color: black;"));
             dijkstraSnapshot = search(demo, dijkstraSnapshot);
             if (dijkstraSnapshot.getCurrent() == null) {
-                display();
+                display(SLOW_STEP_SECONDS);
                 return;
             }
             for (Edge edge : dijkstraSnapshot.getPath()) {
                 graphStreamGraph.getEdge(edge).setAttribute("ui.style", "fill-color: green;");
+                if (!oldPath.contains(edge)) {
+                    display(FAST_STEP_SECONDS);
+                }
             }
             if (dijkstraSnapshot.getCurrent().equals(demo.getEnd())) {
                 graphStreamGraph.getNode(dijkstraSnapshot.getCurrent()).setAttribute("ui.style", "fill-color: yellow;size: 30px;");
                 getPath(demo.getStart(), demo.getEnd(), dijkstraSnapshot.getPath()).forEach(edge ->
                         graphStreamGraph.getEdge(edge).setAttribute("ui.style", "fill-color: red;"));
-                display();
+                display(SLOW_STEP_SECONDS);
                 return;
             }
-            display();
         }
     }
 
@@ -136,9 +141,9 @@ public class Interpreter {
                 .orElseThrow(() -> new IllegalStateException("yikes"));
     }
 
-    private static void display() {
+    private static void display(int seconds) {
         DateTime startTime = new DateTime();
-        while (Seconds.secondsBetween(startTime, new DateTime()).getSeconds() < DISPLAY_SECONDS) {
+        while (Seconds.secondsBetween(startTime, new DateTime()).getSeconds() < seconds) {
             // loop
         }
     }
