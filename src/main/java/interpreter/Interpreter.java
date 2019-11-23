@@ -43,7 +43,7 @@ public class Interpreter {
     public static void run(String concrete) {
         Interpreter.interpret(Parser.parse(concrete));
     }
-    
+
     public static void interpret(Demo demo) {
         validateDemo(demo);
         System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
@@ -190,7 +190,7 @@ public class Interpreter {
         if (current.equals(demo.getEnd())) {
             return dijkstraSnapshot;
         }
-        for (Edge edge: outgoingEdges(current, demo.getGraph().getEdges())) {
+        for (Edge edge : outgoingEdges(current, demo.getGraph().getEdges())) {
             double alt = dijkstraSnapshot.getDist().get(current) + edge.getWeight();
             if (alt < dijkstraSnapshot.getDist().get(edge.getEnd())) {
                 dijkstraSnapshot.getDist().put(edge.getEnd(), alt);
@@ -212,6 +212,7 @@ public class Interpreter {
                 .filter(edge -> edge.getStart().equals(begin))
                 .collect(Collectors.toList());
     }
+
     // changes: handle the case when algorithm == NOTHING
     private static void validateDemo(Demo demo) {
         model.Graph graph = demo.getGraph();
@@ -223,15 +224,16 @@ public class Interpreter {
         if (new HashSet<>(nodes).size() != nodes.size()) {
             throw new InterpreterException("Duplicate nodes");
         }
-        if (demo.getAlgorithm() != Algorithm.NOTHING) {
-            for (Edge edge: edges) {
-                if (!nodes.contains(edge.getStart())) {
-                    throw new InterpreterException("Node " + edge.getStart() + " does not exist");
-                }
-                if (!nodes.contains(edge.getEnd())) {
-                    throw new InterpreterException("Node " + edge.getEnd() + " does not exist");
-                }
+
+        for (Edge edge : edges) {
+            if (!nodes.contains(edge.getStart())) {
+                throw new InterpreterException("Node " + edge.getStart() + " does not exist");
             }
+            if (!nodes.contains(edge.getEnd())) {
+                throw new InterpreterException("Node " + edge.getEnd() + " does not exist");
+            }
+        }
+        if (demo.getAlgorithm() != Algorithm.NOTHING) {
             if (!nodes.contains(demo.getStart())) {
                 throw new InterpreterException("Demo must begin with a node that exists in the graph");
             }

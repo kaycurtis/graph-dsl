@@ -96,28 +96,6 @@ public class InterpreterTest {
         Interpreter.interpret(Demo.of(Algorithm.DIJKSTRAS, graph, Node.of("A"), Node.of("E")));
     }
 
-
-//    New Changes for Nothing:
-//    parser:
-//	    - added NOTHING to reserved
-//	    - added pattern for nothing
-//      - edited parseDemo
-//        Note:  Nothing accepts two syntax pattern, with or without from <start> to <end>;
-//    interp:
-//            - added NOTHING to ANIMATION_FUNCTION_SUPPLIERS
-//	          - added doNothingAnimation method that display for 99999 seconds
-//            - edited validate();
-//
-//    New Changes for Bidirectional:
-//    parser: - added new bidirectional edge pattern
-//	          - edited parseEdge // note: changed return type to T
-//            - edited parseList
-//            - edited parseList to avoid adding same thing twice.
-//   No changes to Interp
-//
-//   problem? :  bi-directional edges are overlapped on graph, making it hard to see the coloured edge in each step in DIJKSTRAS
-
-
     @Test
     public void testNothingSyntax1() {
         Interpreter.run("{do NOTHING on {graph {A B C} {{A to B} {B to C} {C to A}}} from A to C}");
