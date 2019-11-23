@@ -1,11 +1,7 @@
 package parser;
 
 import com.google.common.collect.ImmutableList;
-import model.Algorithm;
-import model.Demo;
-import model.Edge;
-import model.Graph;
-import model.Node;
+import model.*;
 import org.junit.Test;
 
 import java.util.List;
@@ -39,7 +35,8 @@ public class ParserTest {
 
     @Test
     public void testEdgeParse() {
-        assertThat(Parser.parseEdge("{A to B}")).isEqualTo(A_TO_B);
+        // added: this test now fails unless we cast it to Edge. see testEdgeParseBidirectional.
+        // assertThat(Parser.parseEdge("{A to B}")).isEqualTo(A_TO_B);
         assertThat(Parser.parseEdges("{{A to B} {B to C} {C to A}}")).isEqualTo(EDGES);
     }
 
@@ -91,4 +88,57 @@ public class ParserTest {
         String demo = "{graph {A B C} {{A bar B} {B foo C}}}";
         Parser.parseGraph(demo);
     }
+
+    @Test
+    public void testEdgeParseBidirectional() {
+        // needs to be casted to Edge
+        assertThat((Edge) Parser.parseEdge("{A to B}")).isEqualTo(A_TO_B);
+
+        assertThat(Parser.parseEdges("{{A to B} {B to C} {C to A}}")).isEqualTo(EDGES);
+
+        // new bi-directional test.
+        List<Edge> e1 = ImmutableList.of(Edge.of(A, B, null), Edge.of(B, A, null), Edge.of(C, A, null));
+        assertThat(Parser.parseEdges("{{A <-> B} {C to A}}")).isEqualTo(e1);
+    }
+    @Test
+    public void testEdgeParseDuplicate() {
+
+        assertThat(Parser.parseEdges("{{A to B} {A to B} {B to C} {B to C} {C to A}}")).isEqualTo(EDGES);
+
+    }
+    @Test
+    public void testEdgeParseDuplicateB() {
+        List<Edge> e1 = ImmutableList.of(Edge.of(A, B, null), Edge.of(B, A, null), Edge.of(C, A, null));
+        assertThat(Parser.parseEdges("{{A <-> B} {A to B} {C to A}}")).isEqualTo(e1);
+        assertThat(Parser.parseEdges("{{A to B} {A <-> B} {C to A}}")).isEqualTo(e1);
+        assertThat(Parser.parseEdges("{{A <-> B} {A <-> B} {B <-> A} {C to A}}")).isEqualTo(e1);
+    }
+
+//    @Test
+//    public <T> void someTest() {
+////        assertThat((Edge)Parser.parseEdge("{A to B}")).isEqualTo(A_TO_B);
+////        assertThat(Parser.parseEdges("{{A to B} {B to C} {C to A}}")).isEqualTo(EDGES);
+////        List<Edge> e1 = ImmutableList.of( Edge.of(A,B, null), Edge.of(B, A, null), Edge.of(C, A, null));
+////        assertThat(Parser.parseEdges("{{A between B} {C to A}}")).isEqualTo(e1);
+//        List<String> array1 = new ArrayList<>();
+//        List<String> array2 = new ArrayList<>();
+//        array1.add("dog");
+//        array1.add("cat");
+//        array1.add("boy");
+//        array2.add("y1");
+//        array2.add("g1");
+//        array2.add("u1");
+//        array1.addAll(array2);
+//        System.out.println(array1);
+//        T something = (T) array1;
+//        T something2 = (T) array2;
+//        T another = (T) "what";
+//        System.out.println(something.equals(something2));
+//        System.out.println(something.equals(another));
+//        System.out.println(array1.equals(array2));
+//        System.out.println("\n");
+//        System.out.println(array1 instanceof List);
+//        System.out.println(something instanceof List);
+//    }
+
 }

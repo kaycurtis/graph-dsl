@@ -212,7 +212,7 @@ public class Interpreter {
                 .filter(edge -> edge.getStart().equals(begin))
                 .collect(Collectors.toList());
     }
-
+    // changes: handle the case when algorithm == NOTHING
     private static void validateDemo(Demo demo) {
         model.Graph graph = demo.getGraph();
         List<Edge> edges = graph.getEdges();
@@ -223,16 +223,18 @@ public class Interpreter {
         if (new HashSet<>(nodes).size() != nodes.size()) {
             throw new InterpreterException("Duplicate nodes");
         }
-        for (Edge edge: edges) {
-            if (!nodes.contains(edge.getStart())) {
-                throw new InterpreterException("Node " + edge.getStart() + " does not exist");
+        if (demo.getAlgorithm() != Algorithm.NOTHING) {
+            for (Edge edge: edges) {
+                if (!nodes.contains(edge.getStart())) {
+                    throw new InterpreterException("Node " + edge.getStart() + " does not exist");
+                }
+                if (!nodes.contains(edge.getEnd())) {
+                    throw new InterpreterException("Node " + edge.getEnd() + " does not exist");
+                }
             }
-            if (!nodes.contains(edge.getEnd())) {
-                throw new InterpreterException("Node " + edge.getEnd() + " does not exist");
+            if (!nodes.contains(demo.getStart())) {
+                throw new InterpreterException("Demo must begin with a node that exists in the graph");
             }
-        }
-        if (!nodes.contains(demo.getStart())) {
-            throw new InterpreterException("Demo must begin with a node that exists in the graph");
         }
         // non-existent end node is ok
     }

@@ -25,7 +25,7 @@ public class InterpreterTest {
     public void testDfs() {
         Interpreter.interpret(Demo.of(Algorithm.DFS, GRAPH, Node.of("A"), Node.of("F")));
     }
-    
+
     @Test
     public void testBfsBig() {
         Interpreter.interpret(Demo.of(Algorithm.BFS, GRAPH2, Node.of("A"), Node.of("E")));
@@ -55,7 +55,7 @@ public class InterpreterTest {
     public void testDfsNonexistentEnd() {
         Interpreter.interpret(Demo.of(Algorithm.DFS, SIMPLE_GRAPH, Node.of("A"), Node.of("E")));
     }
-    
+
     @Test
     public void testBfsUnreachableEnd() {
         Interpreter.interpret(Demo.of(Algorithm.BFS, GRAPH4, Node.of("A"), Node.of("E")));
@@ -99,13 +99,57 @@ public class InterpreterTest {
 
 //    New Changes for Nothing:
 //    parser:
-//            -add NOTHING to reserved
+//	    - added NOTHING to reserved
+//	    - added pattern for nothing
+//      - edited parseDemo
+//        Note:  Nothing accepts two syntax pattern, with or without from <start> to <end>;
 //    interp:
-//            - add NOTHING to ANIMATION_FUNCTION_SUPPLIERS
-//	          - add doNothingAnimation helper method that display for 99999 seconds
+//            - added NOTHING to ANIMATION_FUNCTION_SUPPLIERS
+//	          - added doNothingAnimation method that display for 99999 seconds
+//            - edited validate();
+//
+//    New Changes for Bidirectional:
+//    parser: - added new bidirectional edge pattern
+//	          - edited parseEdge // note: changed return type to T
+//            - edited parseList
+//            - edited parseList to avoid adding same thing twice.
+//   No changes to Interp
+//
+//   problem? :  bi-directional edges are overlapped on graph, making it hard to see the coloured edge in each step in DIJKSTRAS
+
+
     @Test
-    public void testNothing() {
-       Interpreter.run("{do NOTHING on {graph {A B C} {{A to B} {B to C} {C to A}}} from A to C}");
+    public void testNothingSyntax1() {
+        Interpreter.run("{do NOTHING on {graph {A B C} {{A to B} {B to C} {C to A}}} from A to C}");
     }
 
+    @Test
+    public void testNothingSyntax2() {
+        Interpreter.run("{do NOTHING on {graph {A B C} {{A to B} {B to C} {C to A}}}}");
+    }
+
+    @Test
+    public void testNothingSyntax2withWeight() {
+        Interpreter.run("{do NOTHING on {graph {A B C} {{A to B 1.3} {B to C 5.5} {C to A 1.1}}}}");
+    }
+
+
+    @Test
+    public void testBidirectional() {
+        Interpreter.run("{do NOTHING on {graph {A B C D} {{A to B 1} {A to C 5} {A <-> D 5}}}}");
+    }
+
+    @Test
+    public void testBidirectionalDFS0() {
+        Interpreter.run("{do DFS on {graph {A B C} {{A to B} {B to C} {C to A}}} from A to C}");
+    }
+
+    @Test
+    public void testBidirectionalDFS1() {
+        Interpreter.run("{do DFS on {graph {A B C} {{A <-> B} {B to C} {C to A}}} from A to C}");
+    }
+    @Test
+    public void testBidirectionalDFS2() {
+        Interpreter.run("{do DIJKSTRAS on {graph {A B C} {{A <-> B 5} {B <-> C 2} {C to A 1}}} from A to C}");
+    }
 }
