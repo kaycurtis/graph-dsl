@@ -8,4 +8,5 @@ public class Demo {
         Graph graph;
         Node start;
         Node end;
+        Boolean showDS;
 }

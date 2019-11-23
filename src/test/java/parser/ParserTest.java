@@ -62,7 +62,7 @@ public class ParserTest {
     @Test
     public void testDemo() {
         String demo = "{do BFS on {graph {A B C} {{A to B} {B to C} {C to A}}} from A to C}";
-        Demo expected = Demo.of(Algorithm.BFS, GRAPH, A, C);
+        Demo expected = Demo.of(Algorithm.BFS, GRAPH, A, C, true);
         assertThat(Parser.parse(demo)).isEqualTo(expected);
     }
 

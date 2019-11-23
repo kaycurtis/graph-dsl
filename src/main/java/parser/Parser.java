@@ -131,7 +131,7 @@ public class Parser {
         Node start = parseNode(matcher.group(3));
         Node end = parseNode(matcher.group(4));
 
-        return Demo.of(algorithm, graph, start, end);
+        return Demo.of(algorithm, graph, start, end, true); //TODO
     }
 
     static Algorithm parseAlgorithm(String concrete) {

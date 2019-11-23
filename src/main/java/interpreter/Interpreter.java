@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 
 public class Interpreter {
 
+    private static Graph ds = new SingleGraph("Data Structure");
+
     private static final Map<Algorithm, Supplier<Snapshot>> SNAPSHOT_SUPPLIERS = ImmutableMap.of(
             Algorithm.DFS, DfsSnapshot::new,
             Algorithm.BFS, BfsSnapshot::new);
@@ -46,13 +48,17 @@ public class Interpreter {
         validateDemo(demo);
         System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
         Graph graph = new SingleGraph("Graph");
+
+
         Map<Node, org.graphstream.graph.Node> nodeMap = new HashMap<>();
         Map<Edge, org.graphstream.graph.Edge> edgeMap = new HashMap<>();
+
         for (Node node : demo.getGraph().getNodes()) {
             org.graphstream.graph.Node gNode = graph.addNode(node.getName());
             gNode.addAttribute("ui.style", "fill-color: grey;size: 30px;");
             gNode.addAttribute("ui.label", node.getName());
             nodeMap.put(node, gNode);
+            ds.addNode(node.getName());
         }
         for (Edge edge : demo.getGraph().getEdges()) {
             org.graphstream.graph.Edge gEdge = graph.addEdge(edge.getStart().getName() + edge.getEnd().getName(),
@@ -63,7 +69,15 @@ public class Interpreter {
             }
             edgeMap.put(edge, gEdge);
         }
+        Node firstNode = demo.getGraph().getNodes().get(0);
+        for (int i = 1; i < demo.getGraph().getNodes().size(); i++) {
+            Node secondNode = demo.getGraph().getNodes().get(i);
+            ds.addEdge(""+i+"", firstNode.getName(), secondNode.getName());
+            firstNode = demo.getGraph().getNodes().get(i);
+        }
+
         graph.display();
+        ds.display();
         display(SLOW_STEP_SECONDS);
         ANIMATION_FUNCTION_SUPPLIERS.get(demo.getAlgorithm()).accept(demo, GraphStreamGraph.of(nodeMap, edgeMap));
     }

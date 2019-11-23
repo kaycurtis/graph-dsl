@@ -18,81 +18,81 @@ public class InterpreterTest {
 
     @Test
     public void testBfs() {
-        Interpreter.interpret(Demo.of(Algorithm.BFS, GRAPH, Node.of("A"), Node.of("F")));
+        Interpreter.interpret(Demo.of(Algorithm.BFS, GRAPH, Node.of("A"), Node.of("F"), true));
     }
 
     @Test
     public void testDfs() {
-        Interpreter.interpret(Demo.of(Algorithm.DFS, GRAPH, Node.of("A"), Node.of("F")));
+        Interpreter.interpret(Demo.of(Algorithm.DFS, GRAPH, Node.of("A"), Node.of("F"), true));
     }
     
     @Test
     public void testBfsBig() {
-        Interpreter.interpret(Demo.of(Algorithm.BFS, GRAPH2, Node.of("A"), Node.of("E")));
+        Interpreter.interpret(Demo.of(Algorithm.BFS, GRAPH2, Node.of("A"), Node.of("E"), true));
     }
 
     @Test
     public void testDfsBig() {
-        Interpreter.interpret(Demo.of(Algorithm.DFS, GRAPH2, Node.of("A"), Node.of("E")));
+        Interpreter.interpret(Demo.of(Algorithm.DFS, GRAPH2, Node.of("A"), Node.of("E"), true));
     }
 
     @Test
     public void testBfsCycle() {
-        Interpreter.interpret(Demo.of(Algorithm.BFS, GRAPH3, Node.of("A"), Node.of("B")));
+        Interpreter.interpret(Demo.of(Algorithm.BFS, GRAPH3, Node.of("A"), Node.of("B"), true));
     }
 
     @Test
     public void testDfsCycle() {
-        Interpreter.interpret(Demo.of(Algorithm.DFS, GRAPH3, Node.of("A"), Node.of("B")));
+        Interpreter.interpret(Demo.of(Algorithm.DFS, GRAPH3, Node.of("A"), Node.of("B"), true));
     }
 
     @Test
     public void testBfsNonexistentEnd() {
-        Interpreter.interpret(Demo.of(Algorithm.BFS, SIMPLE_GRAPH, Node.of("A"), Node.of("E")));
+        Interpreter.interpret(Demo.of(Algorithm.BFS, SIMPLE_GRAPH, Node.of("A"), Node.of("E"), true));
     }
 
     @Test
     public void testDfsNonexistentEnd() {
-        Interpreter.interpret(Demo.of(Algorithm.DFS, SIMPLE_GRAPH, Node.of("A"), Node.of("E")));
+        Interpreter.interpret(Demo.of(Algorithm.DFS, SIMPLE_GRAPH, Node.of("A"), Node.of("E"), true));
     }
     
     @Test
     public void testBfsUnreachableEnd() {
-        Interpreter.interpret(Demo.of(Algorithm.BFS, GRAPH4, Node.of("A"), Node.of("E")));
+        Interpreter.interpret(Demo.of(Algorithm.BFS, GRAPH4, Node.of("A"), Node.of("E"), true));
     }
 
     @Test
     public void testDfsUnreachableEnd() {
-        Interpreter.interpret(Demo.of(Algorithm.DFS, GRAPH4, Node.of("A"), Node.of("E")));
+        Interpreter.interpret(Demo.of(Algorithm.DFS, GRAPH4, Node.of("A"), Node.of("E"), true));
     }
 
     @Test(expected = InterpreterException.class)
     public void testDfsGraphDuplicateEdge() {
         Graph BAD_GRAPH = Parser.parseGraph("{graph {A B C} {{A to B} {B to C} {B to C}}}");
-        Interpreter.interpret(Demo.of(Algorithm.DFS, BAD_GRAPH, Node.of("A"), Node.of("E")));
+        Interpreter.interpret(Demo.of(Algorithm.DFS, BAD_GRAPH, Node.of("A"), Node.of("E"), true));
     }
 
     @Test(expected = InterpreterException.class)
     public void edgeNodesNotInGraph() {
         Graph BAD_GRAPH = Parser.parseGraph("{graph {A B C} {{A to E}}}");
-        Interpreter.interpret(Demo.of(Algorithm.DFS, BAD_GRAPH, Node.of("A"), Node.of("E")));
+        Interpreter.interpret(Demo.of(Algorithm.DFS, BAD_GRAPH, Node.of("A"), Node.of("E"), true));
     }
 
     @Test(expected = InterpreterException.class)
     public void duplicateNodes() {
         Graph BAD_GRAPH = Parser.parseGraph("{graph {A B B} {{A to B} {B to A}}}");
-        Interpreter.interpret(Demo.of(Algorithm.DFS, BAD_GRAPH, Node.of("A"), Node.of("E")));
+        Interpreter.interpret(Demo.of(Algorithm.DFS, BAD_GRAPH, Node.of("A"), Node.of("E"), true));
     }
 
     @Test(expected = InterpreterException.class)
     public void startNodeNodeInGraph() {
         Graph BAD_GRAPH = Parser.parseGraph("{graph {A B C} {{A to B} {B to C} {B to A}}}");
-        Interpreter.interpret(Demo.of(Algorithm.DFS, BAD_GRAPH, Node.of("E"), Node.of("A")));
+        Interpreter.interpret(Demo.of(Algorithm.DFS, BAD_GRAPH, Node.of("E"), Node.of("A"), true));
     }
 
     @Test
     public void testDijkstra() {
         Graph graph = Parser.parseGraph("{graph {A B C D E F} {{A to B 3} {A to D 1.5} {A to C 4} {C to E 1} {D to E 2} {D to F 3}}}");
-        Interpreter.interpret(Demo.of(Algorithm.DIJKSTRAS, graph, Node.of("A"), Node.of("E")));
+        Interpreter.interpret(Demo.of(Algorithm.DIJKSTRAS, graph, Node.of("A"), Node.of("E"), true));
     }
 }
