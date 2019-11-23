@@ -32,8 +32,10 @@ public class Interpreter {
     private static final Map<Algorithm, BiConsumer<Demo, GraphStreamGraph>> ANIMATION_FUNCTION_SUPPLIERS = ImmutableMap.of(
             Algorithm.DFS, Interpreter::doSearchAnimation,
             Algorithm.BFS, Interpreter::doSearchAnimation,
-            Algorithm.DIJKSTRAS, Interpreter::doDjikstraAnimation
+            Algorithm.DIJKSTRAS, Interpreter::doDjikstraAnimation,
+            Algorithm.NOTHING, Interpreter::doNothingAnimation
     );
+
 
     private static final int SLOW_STEP_SECONDS = 3;
     private static final int FAST_STEP_SECONDS = 1;
@@ -67,6 +69,11 @@ public class Interpreter {
         display(SLOW_STEP_SECONDS);
         ANIMATION_FUNCTION_SUPPLIERS.get(demo.getAlgorithm()).accept(demo, GraphStreamGraph.of(nodeMap, edgeMap));
     }
+
+    private static void doNothingAnimation(Demo demo, GraphStreamGraph graphStreamGraph) {
+        display(9999999);
+    }
+
 
     @SuppressWarnings("unchecked") // i checked
     private static void doSearchAnimation(Demo demo, GraphStreamGraph graphStreamGraph) {
@@ -141,6 +148,7 @@ public class Interpreter {
                 .orElseThrow(() -> new IllegalStateException("yikes"));
     }
 
+    // loop for n seconds
     private static void display(int seconds) {
         DateTime startTime = new DateTime();
         while (Seconds.secondsBetween(startTime, new DateTime()).getSeconds() < seconds) {

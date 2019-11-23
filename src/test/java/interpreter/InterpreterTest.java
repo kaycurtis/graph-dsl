@@ -95,4 +95,17 @@ public class InterpreterTest {
         Graph graph = Parser.parseGraph("{graph {A B C D E F} {{A to B 3} {A to D 1.5} {A to C 4} {C to E 1} {D to E 2} {D to F 3}}}");
         Interpreter.interpret(Demo.of(Algorithm.DIJKSTRAS, graph, Node.of("A"), Node.of("E")));
     }
+
+
+//    New Changes for Nothing:
+//    parser:
+//            -add NOTHING to reserved
+//    interp:
+//            - add NOTHING to ANIMATION_FUNCTION_SUPPLIERS
+//	          - add doNothingAnimation helper method that display for 99999 seconds
+    @Test
+    public void testNothing() {
+       Interpreter.run("{do NOTHING on {graph {A B C} {{A to B} {B to C} {C to A}}} from A to C}");
+    }
+
 }
