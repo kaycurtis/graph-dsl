@@ -123,6 +123,26 @@ public class Interpreter {
         }
     }
 
+    private static void doPrimAnimation(Demo demo, GraphStreamGraph graphStreamGraph) {
+        PrimSnapshot primSnapshot = new PrimSnapshot(demo);
+        while (true) {
+            List<Edge> oldTree = new ArrayList<>(primSnapshot.getTree());
+            graphStreamGraph.getEdges().values().forEach(edge ->
+                    edge.setAttribute("ui.style", "fill-color: black;"));
+            primSnapshot.step(); // analogous to search() for Dijkstra
+            for (Edge edge : primSnapshot.getTree()) {
+                graphStreamGraph.getEdge(edge).setAttribute("ui.style", "fill-color: green;");
+                if (!oldTree.contains(edge)) {
+                    display(FAST_STEP_SECONDS);
+                }
+            }
+            if (primSnapshot.isOver()) { // analogous to getCurrent == null, or current == end for Dijkstra
+                display(SLOW_STEP_SECONDS);
+                break;
+            }
+        }
+    }
+
     private static List<Edge> getPath(Node start, Node end, List<Edge> path) {
         List<Edge> edges = new ArrayList<>();
         Node current = end;
