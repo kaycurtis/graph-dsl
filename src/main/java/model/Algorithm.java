@@ -1,5 +1,5 @@
 package model;
 
 public enum Algorithm {
-    BFS, DFS, DIJKSTRAS
+    BFS, DFS, DIJKSTRAS, PRIMS, KRUSKALS
 }
