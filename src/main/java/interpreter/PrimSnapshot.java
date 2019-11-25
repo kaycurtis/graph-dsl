@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// TODO: IF edge from a->b represents an undirected edge a<->b then treat it that way
+// Easiest way to is to just make b->a for each a->b in the ctor
+
 @Data
 public class PrimSnapshot implements Snapshot {
     /*
@@ -37,7 +40,7 @@ public class PrimSnapshot implements Snapshot {
             }
         });
         demo.getGraph().getEdges().forEach(edge -> {
-            remainingEdges.add(edge);
+            this.remainingEdges.add(edge);
         });
     }
 
@@ -56,7 +59,7 @@ public class PrimSnapshot implements Snapshot {
         // Check all remaining edges. If it comes from the tree to the destination node n,
         // take the minimum such edge and return it.
         for (Edge edge : this.remainingEdges) {
-            if (isInTree.get(edge.start) && edge.end == node) {
+            if (this.isInTree.get(edge.start) && edge.end == node) {
                 if (edge.weight < minEdgeLength) {
                     minEdgeLength = edge.weight;
                     minEdge = edge;
