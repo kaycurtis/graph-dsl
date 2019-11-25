@@ -27,7 +27,7 @@ public class InterpreterTest {
     public void testDfs() {
         Interpreter.interpret(Demo.of(Algorithm.DFS, GRAPH, Node.of("A"), Node.of("F")));
     }
-    
+
     @Test
     public void testBfsBig() {
         Interpreter.interpret(Demo.of(Algorithm.BFS, GRAPH2, Node.of("A"), Node.of("E")));
@@ -57,7 +57,7 @@ public class InterpreterTest {
     public void testDfsNonexistentEnd() {
         Interpreter.interpret(Demo.of(Algorithm.DFS, SIMPLE_GRAPH, Node.of("A"), Node.of("E")));
     }
-    
+
     @Test
     public void testBfsUnreachableEnd() {
         Interpreter.interpret(Demo.of(Algorithm.BFS, GRAPH4, Node.of("A"), Node.of("E")));
@@ -106,5 +106,40 @@ public class InterpreterTest {
     public void testDijkstra() {
         Graph graph = Parser.parseGraph("{graph {A B C D E F} {{A to B 3} {A to D 1.5} {A to C 4} {C to E 1} {D to E 2} {D to F 3}}}");
         Interpreter.interpret(Demo.of(Algorithm.DIJKSTRAS, graph, Node.of("A"), Node.of("E")));
+    }
+
+    @Test
+    public void testNothingSyntax1() {
+        Interpreter.run("{do NOTHING on {graph {A B C} {{A to B} {B to C} {C to A}}} from A to C}");
+    }
+
+    @Test
+    public void testNothingSyntax2() {
+        Interpreter.run("{do NOTHING on {graph {A B C} {{A to B} {B to C} {C to A}}}}");
+    }
+
+    @Test
+    public void testNothingSyntax2withWeight() {
+        Interpreter.run("{do NOTHING on {graph {A B C} {{A to B 1.3} {B to C 5.5} {C to A 1.1}}}}");
+    }
+
+
+    @Test
+    public void testBidirectional() {
+        Interpreter.run("{do NOTHING on {graph {A B C D} {{A to B 1} {A to C 5} {A <-> D 5}}}}");
+    }
+
+    @Test
+    public void testBidirectionalDFS0() {
+        Interpreter.run("{do DFS on {graph {A B C} {{A to B} {B to C} {C to A}}} from A to C}");
+    }
+
+    @Test
+    public void testBidirectionalDFS1() {
+        Interpreter.run("{do DFS on {graph {A B C} {{A <-> B} {B to C} {C to A}}} from A to C}");
+    }
+    @Test
+    public void testBidirectionalDFS2() {
+        Interpreter.run("{do DIJKSTRAS on {graph {A B C} {{A <-> B 5} {B <-> C 2} {C to A 1}}} from A to C}");
     }
 }

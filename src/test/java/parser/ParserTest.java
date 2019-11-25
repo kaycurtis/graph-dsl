@@ -1,11 +1,7 @@
 package parser;
 
 import com.google.common.collect.ImmutableList;
-import model.Algorithm;
-import model.Demo;
-import model.Edge;
-import model.Graph;
-import model.Node;
+import model.*;
 import org.junit.Test;
 
 import java.util.List;
@@ -32,14 +28,15 @@ public class ParserTest {
 
     @Test
     public void testNodeParse() {
-        assertThat(Parser.parseNode("A")).isEqualTo(A);
+        assertThat(Parser.parseNode("A").get(0)).isEqualTo(A);
         assertThat(Parser.parseNodes("{A B C}")).isEqualTo(NODES);
         assertThat(Parser.parseNodes("{}")).isEmpty();
     }
 
     @Test
     public void testEdgeParse() {
-        assertThat(Parser.parseEdge("{A to B}")).isEqualTo(A_TO_B);
+        // added: this test now fails unless we cast it to Edge. see testEdgeParseBidirectional.
+        // assertThat(Parser.parseEdge("{A to B}")).isEqualTo(A_TO_B);
         assertThat(Parser.parseEdges("{{A to B} {B to C} {C to A}}")).isEqualTo(EDGES);
     }
 
@@ -90,5 +87,16 @@ public class ParserTest {
     public void testParseGraphMissingKeywords() {
         String demo = "{graph {A B C} {{A bar B} {B foo C}}}";
         Parser.parseGraph(demo);
+    }
+
+    @Test
+    public void testEdgeParseBidirectional() {
+        assertThat(Parser.parseEdge("{A to B}").get(0)).isEqualTo(A_TO_B);
+
+        assertThat(Parser.parseEdges("{{A to B} {B to C} {C to A}}")).isEqualTo(EDGES);
+
+        // new bi-directional test.
+        List<Edge> e1 = ImmutableList.of(Edge.of(A, B, null), Edge.of(B, A, null), Edge.of(C, A, null));
+        assertThat(Parser.parseEdges("{{A <-> B} {C to A}}")).isEqualTo(e1);
     }
 }

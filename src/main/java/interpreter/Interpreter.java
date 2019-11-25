@@ -32,8 +32,10 @@ public class Interpreter {
     private static final Map<Algorithm, BiConsumer<Demo, GraphStreamGraph>> ANIMATION_FUNCTION_SUPPLIERS = ImmutableMap.of(
             Algorithm.DFS, Interpreter::doSearchAnimation,
             Algorithm.BFS, Interpreter::doSearchAnimation,
-            Algorithm.DIJKSTRAS, Interpreter::doDjikstraAnimation
+            Algorithm.DIJKSTRAS, Interpreter::doDjikstraAnimation,
+            Algorithm.NOTHING, Interpreter::doNothingAnimation
     );
+
 
     private static final int SLOW_STEP_SECONDS = 3;
     private static final int FAST_STEP_SECONDS = 1;
@@ -41,7 +43,7 @@ public class Interpreter {
     public static void run(String concrete) {
         Interpreter.interpret(Parser.parse(concrete));
     }
-    
+
     public static void interpret(Demo demo) {
         validateDemo(demo);
         System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
@@ -67,6 +69,11 @@ public class Interpreter {
         display(SLOW_STEP_SECONDS);
         ANIMATION_FUNCTION_SUPPLIERS.get(demo.getAlgorithm()).accept(demo, GraphStreamGraph.of(nodeMap, edgeMap));
     }
+
+    private static void doNothingAnimation(Demo demo, GraphStreamGraph graphStreamGraph) {
+        display(9999999);
+    }
+
 
     @SuppressWarnings("unchecked") // i checked
     private static void doSearchAnimation(Demo demo, GraphStreamGraph graphStreamGraph) {
@@ -141,6 +148,7 @@ public class Interpreter {
                 .orElseThrow(() -> new IllegalStateException("yikes"));
     }
 
+    // loop for n seconds
     private static void display(int seconds) {
         DateTime startTime = new DateTime();
         while (Seconds.secondsBetween(startTime, new DateTime()).getSeconds() < seconds) {
@@ -182,7 +190,7 @@ public class Interpreter {
         if (current.equals(demo.getEnd())) {
             return dijkstraSnapshot;
         }
-        for (Edge edge: outgoingEdges(current, demo.getGraph().getEdges())) {
+        for (Edge edge : outgoingEdges(current, demo.getGraph().getEdges())) {
             double alt = dijkstraSnapshot.getDist().get(current) + edge.getWeight();
             if (alt < dijkstraSnapshot.getDist().get(edge.getEnd())) {
                 dijkstraSnapshot.getDist().put(edge.getEnd(), alt);
@@ -205,6 +213,7 @@ public class Interpreter {
                 .collect(Collectors.toList());
     }
 
+    // changes: handle the case when algorithm == NOTHING
     private static void validateDemo(Demo demo) {
         model.Graph graph = demo.getGraph();
         List<Edge> edges = graph.getEdges();
@@ -215,7 +224,8 @@ public class Interpreter {
         if (new HashSet<>(nodes).size() != nodes.size()) {
             throw new InterpreterException("Duplicate nodes");
         }
-        for (Edge edge: edges) {
+
+        for (Edge edge : edges) {
             if (!nodes.contains(edge.getStart())) {
                 throw new InterpreterException("Node " + edge.getStart() + " does not exist");
             }
@@ -223,8 +233,10 @@ public class Interpreter {
                 throw new InterpreterException("Node " + edge.getEnd() + " does not exist");
             }
         }
-        if (!nodes.contains(demo.getStart())) {
-            throw new InterpreterException("Demo must begin with a node that exists in the graph");
+        if (demo.getAlgorithm() != Algorithm.NOTHING) {
+            if (!nodes.contains(demo.getStart())) {
+                throw new InterpreterException("Demo must begin with a node that exists in the graph");
+            }
         }
         // non-existent end node is ok
     }

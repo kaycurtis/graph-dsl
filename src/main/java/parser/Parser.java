@@ -2,13 +2,10 @@ package parser;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
-import model.Algorithm;
-import model.Demo;
-import model.Edge;
-import model.Graph;
-import model.Node;
+import model.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -33,14 +30,18 @@ public class Parser {
      *                  | Dijkstra's
      */
 
-    private static final List<String> RESERVED = ImmutableList.of("to", "do", "on", "from", "graph", "DFS", "BFS", "DIJKSTRAS");
+    private static final List<String> RESERVED = ImmutableList.of("to", "do", "on", "from", "graph", "DFS", "BFS", "DIJKSTRAS","NOTHING");
 
     private static final Pattern LIST_PATTERN = Pattern.compile("\\{(.*)\\}");
     private static final Pattern NODE_PATTERN = Pattern.compile("([A-Za-z0-9]+)");
     private static final Pattern EDGE_PATTERN = Pattern.compile("\\{(.*) to (\\w+)( [\\d\\.]+)?\\}");
+    private static final Pattern BIDIRECTIONAL_EDGE_PATTERN = Pattern.compile("\\{(.*) <-> (\\w+)( [\\d\\.]+)?\\}");
+
     // [\w\s]* is to match node list, hacky way to get around regex issues
     private static final Pattern GRAPH_PATTERN = Pattern.compile("\\{graph (\\{[\\w\\s]*\\}) (.*)\\}");
     private static final Pattern DEMO_PATTERN = Pattern.compile("\\{do (\\w+) on (.*) from (\\w+) to (\\w+)\\}");
+    // added: pattern for NOTHING example: {do NOTHING on {graph {A B C} {{A to B} {B to C} {C to A}}}}
+    private static final Pattern DEMO_PATTERN_NOTHING = Pattern.compile("\\{do NOTHING on (.*)\\}");
 
     public static Demo parse(String concrete) {
         try {
@@ -50,15 +51,15 @@ public class Parser {
         }
     }
 
-    static Node parseNode(String concrete) {
+    static List<Node> parseNode(String concrete) {
         Matcher matcher = NODE_PATTERN.matcher(concrete);
         if (matcher.matches() && !RESERVED.contains(matcher.group(1))) {
-            return Node.of(matcher.group(1));
+            return Collections.singletonList(Node.of(matcher.group(1)));
         }
         throw new ParsingException(concrete + " did not match the expected pattern for a node");
     }
 
-    private static <T> List<T> parseList(String concrete, Function<String, T> function) {
+    private static <T> List<T> parseList(String concrete, Function<String, List<T>> function) {
         Matcher matcher = LIST_PATTERN.matcher(concrete);
         if (!matcher.matches()) {
             throw new ParsingException(concrete + " did not match the expected pattern for a list");
@@ -74,9 +75,10 @@ public class Parser {
                 } while (!concreteElements[i].contains("}"));
             }
             if (concreteElement.length() != 0) {
-                lst.add(function.apply(concreteElement));
+                lst.addAll(function.apply(concreteElement));
+                }
+
             }
-        }
         return lst;
     }
 
@@ -84,15 +86,26 @@ public class Parser {
         return parseList(concrete, Parser::parseNode);
     }
 
-    static Edge parseEdge(String concrete) {
+    static List<Edge> parseEdge(String concrete) {
         Matcher matcher = EDGE_PATTERN.matcher(concrete);
-        if (!matcher.matches()) {
+        Matcher matcherAnother = BIDIRECTIONAL_EDGE_PATTERN.matcher(concrete);
+        if (matcher.matches()) {
+            Node start = parseNode(matcher.group(1)).get(0);
+            Node end = parseNode(matcher.group(2)).get(0);
+            Double cost = getCost(matcher.group(3));
+            return Collections.singletonList(Edge.of(start,end,cost));
+        } else if (matcherAnother.matches()){
+            Node start = parseNode(matcherAnother.group(1)).get(0);
+            Node end = parseNode(matcherAnother.group(2)).get(0);
+            Double cost = getCost(matcherAnother.group(3));
+            List<Edge> returnArray = new ArrayList<>();
+            returnArray.add(Edge.of(start, end, cost));
+            returnArray.add(Edge.of(end,start, cost));
+            return returnArray;
+        } else {
             throw new ParsingException(concrete + " did not match the expected pattern for an edge");
         }
-        Node start = parseNode(matcher.group(1));
-        Node end = parseNode(matcher.group(2));
-        Double cost = getCost(matcher.group(3));
-        return Edge.of(start, end, cost); //TODO
+
     }
 
     private static Double getCost(String str) {
@@ -123,15 +136,19 @@ public class Parser {
 
     private static Demo parseDemo(String concrete) {
         Matcher matcher = DEMO_PATTERN.matcher(concrete);
-        if (!matcher.matches()) {
+        Matcher matcherNothing = DEMO_PATTERN_NOTHING.matcher(concrete);
+        if (matcherNothing.matches()) {
+            Graph graph = parseGraph(matcherNothing.group(1));
+            return Demo.of(Algorithm.NOTHING, graph, null, null);
+        } else if (matcher.matches()) {
+            Algorithm algorithm = parseAlgorithm(matcher.group(1));
+            Graph graph = parseGraph(matcher.group(2));
+            Node start = parseNode(matcher.group(3)).get(0);
+            Node end = parseNode(matcher.group(4)).get(0);
+            return Demo.of(algorithm, graph, start, end);
+        } else {
             throw new ParsingException(concrete + " did not match the expected pattern for a demo");
         }
-        Algorithm algorithm = parseAlgorithm(matcher.group(1));
-        Graph graph = parseGraph(matcher.group(2));
-        Node start = parseNode(matcher.group(3));
-        Node end = parseNode(matcher.group(4));
-
-        return Demo.of(algorithm, graph, start, end);
     }
 
     static Algorithm parseAlgorithm(String concrete) {
