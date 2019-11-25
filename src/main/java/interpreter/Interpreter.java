@@ -123,6 +123,26 @@ public class Interpreter {
         }
     }
 
+    private static void doKruskalAnimation(Demo demo, GraphStreamGraph graphStreamGraph) {
+        KruskalSnapshot kruskalSnapshot = new KruskalSnapshot(demo);
+        while(true) {
+            List<Edge> oldChosenEdges = new ArrayList<>(kruskalSnapshot.getChosenEdges());
+            graphStreamGraph.getEdges().values().forEach(edge ->
+                    edge.setAttribute("ui.style", "fill-color: black;"));
+            kruskalSnapshot.step(); // analogous to search() for Dijkstra
+            for (Edge edge : kruskalSnapshot.getChosenEdges()) {
+                graphStreamGraph.getEdge(edge).setAttribute("ui.style", "fill-color: green;");
+                if (!oldChosenEdges.contains(edge)) {
+                    display(FAST_STEP_SECONDS);
+                }
+            }
+            if (kruskalSnapshot.isOver()) { // analogous to getCurrent == null, or current == end for Dijkstra
+                display(SLOW_STEP_SECONDS);
+                break;
+            }
+        }
+    }
+
     private static void doPrimAnimation(Demo demo, GraphStreamGraph graphStreamGraph) {
         PrimSnapshot primSnapshot = new PrimSnapshot(demo);
         while (true) {
