@@ -28,7 +28,7 @@ public class ParserTest {
 
     @Test
     public void testNodeParse() {
-        assertThat(Parser.parseNode("A")).isEqualTo(A);
+        assertThat(Parser.parseNode("A").get(0)).isEqualTo(A);
         assertThat(Parser.parseNodes("{A B C}")).isEqualTo(NODES);
         assertThat(Parser.parseNodes("{}")).isEmpty();
     }
@@ -91,9 +91,7 @@ public class ParserTest {
 
     @Test
     public void testEdgeParseBidirectional() {
-        // needs to be casted to Edge
-        List l =  Parser.parseEdge("{A to B}");
-        assertThat(l.get(0)).isEqualTo(A_TO_B);
+        assertThat(Parser.parseEdge("{A to B}").get(0)).isEqualTo(A_TO_B);
 
         assertThat(Parser.parseEdges("{{A to B} {B to C} {C to A}}")).isEqualTo(EDGES);
 
@@ -101,19 +99,4 @@ public class ParserTest {
         List<Edge> e1 = ImmutableList.of(Edge.of(A, B, null), Edge.of(B, A, null), Edge.of(C, A, null));
         assertThat(Parser.parseEdges("{{A <-> B} {C to A}}")).isEqualTo(e1);
     }
-    @Test
-    public void testEdgeParseDuplicate() {
-
-        assertThat(Parser.parseEdges("{{A to B} {A to B} {B to C} {B to C} {C to A}}")).isEqualTo(EDGES);
-
-    }
-    @Test
-    public void testEdgeParseDuplicateB() {
-        List<Edge> e1 = ImmutableList.of(Edge.of(A, B, null), Edge.of(B, A, null), Edge.of(C, A, null));
-        assertThat(Parser.parseEdges("{{A <-> B} {A to B} {C to A}}")).isEqualTo(e1);
-        assertThat(Parser.parseEdges("{{A to B} {A <-> B} {C to A}}")).isEqualTo(e1);
-        assertThat(Parser.parseEdges("{{A <-> B} {A <-> B} {B <-> A} {C to A}}")).isEqualTo(e1);
-    }
-
-
 }
