@@ -33,7 +33,7 @@ public class KruskalSnapshot implements Snapshot {
             this.nodeToTree.put(node, numTrees++);
             List<Node> tree = new ArrayList<>();
             tree.add(node);
-            this.trees.add(tree);
+            this.treeToNodes.add(tree);
         });
         demo.getGraph().getEdges().forEach(edge -> {
             this.remainingEdges.add(edge);
@@ -50,8 +50,8 @@ public class KruskalSnapshot implements Snapshot {
     private boolean joinsTwoTrees(Edge edge) {
         Node start = edge.getStart();
         Node end = edge.getEnd();
-        int startTree = nodeToTree(start);
-        int endTree = nodeToTree(end);
+        int startTree = nodeToTree.get(start);
+        int endTree = nodeToTree.get(end);
         return startTree != endTree;
     }
 
@@ -77,12 +77,12 @@ public class KruskalSnapshot implements Snapshot {
         // Transplant the end node's tree into the start node's tree
         Node start = edge.getStart();
         Node end = edge.getEnd();
-        int startTree = this.nodeToTree(start);
-        int endTree = this.nodeToTree(end);
+        int startTree = this.nodeToTree.get(start);
+        int endTree = this.nodeToTree.get(end);
         List<Node> endTreeNodes = treeToNodes.get(endTree); // the nodes to transplant
         // Update the node -> tree mapping for the end nodes
         for (Node node : endTreeNodes) {
-            this.nodeToTree.update(node, startTree);
+            this.nodeToTree.put(node, startTree);
         }
         // Update the tree -> nodes mapping by dumping the end nodes into the start node's tree
         List<Node> startTreeNodes = treeToNodes.get(startTree);
@@ -107,5 +107,6 @@ public class KruskalSnapshot implements Snapshot {
                 minLength = edge.getWeight();
             }
         }
+        return minEdge;
     }
 }

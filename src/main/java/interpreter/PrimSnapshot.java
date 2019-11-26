@@ -58,11 +58,11 @@ public class PrimSnapshot implements Snapshot {
         double minEdgeLength = Double.POSITIVE_INFINITY;
         // Check all remaining edges. If it comes from the tree to the destination node n,
         // take the minimum such edge and return it.
-        for (Edge edge : this.remainingEdges) {
-            if (this.isInTree.get(edge.start) && edge.end == node) {
-                if (edge.weight < minEdgeLength) {
-                    minEdgeLength = edge.weight;
-                    minEdge = edge;
+        for (Edge e : this.remainingEdges) {
+            if (this.isInTree.get(e.getStart()) && e.getEnd() == node) {
+                if (e.getWeight() < minEdgeLength) {
+                    minEdgeLength = e.getWeight();
+                    edge = e;
                 }
             }
         }
@@ -84,7 +84,7 @@ public class PrimSnapshot implements Snapshot {
             Node nextNode = nextEdge.getEnd();
             this.current = nextNode;
             this.remainingNodes.remove(nextNode);
-            this.isInTree.update(nextNode, true);
+            this.isInTree.put(nextNode, true);
         }
     }
 
@@ -92,7 +92,7 @@ public class PrimSnapshot implements Snapshot {
      * Returns the next edge in the growing MST (mininum spanning tree)
      */
     private Edge getNextEdge() {
-        Edge minEdge;
+        Edge minEdge = null;
         double minLength = Double.POSITIVE_INFINITY;
         // Search in all remaining nodes.
         for (Node node : this.remainingNodes) {
@@ -100,7 +100,7 @@ public class PrimSnapshot implements Snapshot {
             if (minEdgeFromTreeToNode == null) {
                 continue;
             } else {
-                double distFromTree = minEdgeFromTree.weight;
+                double distFromTree = minEdgeFromTreeToNode.getWeight();
                 if (distFromTree < minLength) {
                     minLength = distFromTree;
                     minEdge = minEdgeFromTreeToNode;
