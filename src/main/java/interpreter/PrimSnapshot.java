@@ -93,6 +93,8 @@ public class PrimSnapshot implements Snapshot {
             this.canContinue = false;
         } else {
             this.tree.add(nextEdge);
+            // also add reverse edge
+            this.tree.add(Edge.of(nextEdge.getEnd(), nextEdge.getStart(), nextEdge.getWeight()));
             this.remainingEdges.remove(nextEdge);
             Node nextNode = nextEdge.getEnd();
             this.current = nextNode;

@@ -84,6 +84,7 @@ public class KruskalSnapshot implements Snapshot {
     private void joinTreesByEdge(Edge edge){
         // Add the edge to the chosenEdges
         this.chosenEdges.add(edge);
+        this.chosenEdges.add(Edge.of(edge.getEnd(), edge.getStart(), edge.getWeight()));
         // Transplant the end node's tree into the start node's tree
         Node start = edge.getStart();
         Node end = edge.getEnd();
