@@ -41,24 +41,14 @@ public class KruskalSnapshot implements Snapshot {
         demo.getGraph().getEdges().forEach(edge -> {
             this.remainingEdges.add(edge);
         });
-        checkForBidirectionalityOfEdges();
-    }
-
-    private void checkForBidirectionalityOfEdges() {
-        int matches = 0;
-        for (int i = 0; i < this.remainingEdges.size(); ++i) {
-            for (int j = i + 1; j < this.remainingEdges.size(); ++j) {
-                Edge e1 = this.remainingEdges.get(i);
-                Edge e2 = this.remainingEdges.get(j);
-                if (e1.getStart().equals(e2.getEnd()) && e1.getEnd().equals(e2.getStart())){
-                    ++matches;
-                }
+        // ensure all edges have a reversed edge
+        for (Edge edge : this.remainingEdges) {
+            if (!remainingEdges.contains(Edge.of(edge.getEnd(), edge.getStart(), edge.getWeight()))) {
+                throw new InterpreterException("Kruskal's Algorithm requires an undirected graph (bidirectional edges)");
             }
         }
-        if (matches * 2 != this.remainingEdges.size()) {
-            throw new InterpreterException("Kruskal's algorithm graph has not all edges bidirectional");
-        }
     }
+
 
     public boolean isOver() {
         return this.numTrees <= 1 || this.remainingEdges.size() == 0 || !this.canContinue;
