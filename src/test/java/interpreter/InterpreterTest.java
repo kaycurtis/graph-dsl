@@ -27,7 +27,7 @@ public class InterpreterTest {
     public void testDfs() {
         Interpreter.interpret(Demo.of(Algorithm.DFS, GRAPH, Node.of("A"), Node.of("F")));
     }
-    
+
     @Test
     public void testBfsBig() {
         Interpreter.interpret(Demo.of(Algorithm.BFS, GRAPH2, Node.of("A"), Node.of("E")));
@@ -57,7 +57,7 @@ public class InterpreterTest {
     public void testDfsNonexistentEnd() {
         Interpreter.interpret(Demo.of(Algorithm.DFS, SIMPLE_GRAPH, Node.of("A"), Node.of("E")));
     }
-    
+
     @Test
     public void testBfsUnreachableEnd() {
         Interpreter.interpret(Demo.of(Algorithm.BFS, GRAPH4, Node.of("A"), Node.of("E")));
@@ -106,5 +106,17 @@ public class InterpreterTest {
     public void testDijkstra() {
         Graph graph = Parser.parseGraph("{graph {A B C D E F} {{A to B 3} {A to D 1.5} {A to C 4} {C to E 1} {D to E 2} {D to F 3}}}");
         Interpreter.interpret(Demo.of(Algorithm.DIJKSTRAS, graph, Node.of("A"), Node.of("E")));
+    }
+
+    @Test
+    public void testPrim() {
+        Graph graph = Parser.parseGraph("{graph {A B C D E F} {{A to B 3} {B to A 3} {A to D 1.5} {D to A 1.5} {C to E 1} {E to C 1} {D to E 2} {E to D 2} {D to F 3} {F to D 3}}}");
+        Interpreter.interpret(Demo.of(Algorithm.PRIMS, graph, Node.of("A"), Node.of("E")));
+    }
+
+    @Test
+    public void testKruskal() {
+        Graph graph = Parser.parseGraph("{graph {A B C D E F} {{A to B 3} {B to A 3} {A to D 1.5} {D to A 1.5} {C to E 1} {E to C 1} {D to E 2} {E to D 2} {D to F 3} {F to D 3}}}");
+        Interpreter.interpret(Demo.of(Algorithm.KRUSKALS, graph, Node.of("A"), Node.of("E")));
     }
 }

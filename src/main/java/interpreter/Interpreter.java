@@ -32,7 +32,9 @@ public class Interpreter {
     private static final Map<Algorithm, BiConsumer<Demo, GraphStreamGraph>> ANIMATION_FUNCTION_SUPPLIERS = ImmutableMap.of(
             Algorithm.DFS, Interpreter::doSearchAnimation,
             Algorithm.BFS, Interpreter::doSearchAnimation,
-            Algorithm.DIJKSTRAS, Interpreter::doDjikstraAnimation
+            Algorithm.DIJKSTRAS, Interpreter::doDjikstraAnimation,
+            Algorithm.PRIMS, Interpreter::doPrimAnimation,
+            Algorithm.KRUSKALS, Interpreter::doKruskalAnimation
     );
 
     private static final int SLOW_STEP_SECONDS = 3;

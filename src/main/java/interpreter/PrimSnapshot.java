@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// TODO: IF edge from a->b represents an undirected edge a<->b then treat it that way
-// Easiest way to is to just make b->a for each a->b in the ctor
+// Undirected graph algorithm, so edges need matching reverse edge
+// Ignores demo.end() since this algorithm generates a minimum spanning tree
 
 @Data
 public class PrimSnapshot implements Snapshot {
@@ -28,11 +28,13 @@ public class PrimSnapshot implements Snapshot {
     Boolean canContinue = true;
 
     public PrimSnapshot(Demo demo) {
+        // System.out.println("demo.getStart(): " + demo.getStart().getName());
         demo.getGraph().getNodes().forEach(node -> {
             // Put the start node into the tree, set current to it;
             // and everything else goes into remainingNodes
-            if (node == demo.getStart()) {
+            if (node.equals(demo.getStart())) {
                 this.current = node;
+                // System.out.println("Putting start node into tree");
                 this.isInTree.put(node, true);
             } else {
                 this.remainingNodes.add(node);
@@ -53,13 +55,18 @@ public class PrimSnapshot implements Snapshot {
      * returns null if none exists
      */
     private Edge minEdgeFromTree(Node node) {
+        // System.out.println("Min edge from tree: node: " + node.getName());
         // Search in the remainingEdges that point to n.
         Edge edge = null;
         double minEdgeLength = Double.POSITIVE_INFINITY;
         // Check all remaining edges. If it comes from the tree to the destination node n,
         // take the minimum such edge and return it.
+        // System.out.println("Checking remaining edges");
+        // System.out.println("There are " + this.remainingEdges.size() + " remaining edges");
         for (Edge e : this.remainingEdges) {
-            if (this.isInTree.get(e.getStart()) && e.getEnd() == node) {
+            // System.out.println("Checking edge: " + e.getStart() + " " + e.getEnd());
+            if (this.isInTree.get(e.getStart()) && e.getEnd().equals(node)) {
+                // System.out.println("edge goes tree to node");
                 if (e.getWeight() < minEdgeLength) {
                     minEdgeLength = e.getWeight();
                     edge = e;
@@ -74,7 +81,7 @@ public class PrimSnapshot implements Snapshot {
      * Take a step in Prim's algorithm, greedily adding the next edge and node to the MST
      */
     public void step() {
-        // Fine the next edge
+        // Find the next edge
         Edge nextEdge = getNextEdge();
         if (nextEdge == null) {
             this.canContinue = false;

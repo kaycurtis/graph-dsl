@@ -10,8 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// TODO: IF edge from a->b represents an undirected edge a<->b then treat it that way
-// Easiest way to is to just make b->a for each a->b in the ctor
+// Undirected graph algorithm, so edges need matching reverse edge
+// Ignores demo.end() since this algorithm generates a minimum spanning tree
+// Also ignores demo.start() since Kruskal's algorithm always starts with the smallest edge
 
 @Data
 public class KruskalSnapshot implements Snapshot {
