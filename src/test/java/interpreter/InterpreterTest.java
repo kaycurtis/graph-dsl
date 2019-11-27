@@ -119,4 +119,38 @@ public class InterpreterTest {
         Graph graph = Parser.parseGraph("{graph {A B C D E F} {{A to B 3} {B to A 3} {A to D 1.5} {D to A 1.5} {C to E 1} {E to C 1} {D to E 2} {E to D 2} {D to F 3} {F to D 3}}}");
         Interpreter.interpret(Demo.of(Algorithm.KRUSKALS, graph, Node.of("A"), Node.of("E")));
     }
+    
+    public void testNothingSyntax1() {
+        Interpreter.run("{do NOTHING on {graph {A B C} {{A to B} {B to C} {C to A}}} from A to C}");
+    }
+
+    @Test
+    public void testNothingSyntax2() {
+        Interpreter.run("{do NOTHING on {graph {A B C} {{A to B} {B to C} {C to A}}}}");
+    }
+
+    @Test
+    public void testNothingSyntax2withWeight() {
+        Interpreter.run("{do NOTHING on {graph {A B C} {{A to B 1.3} {B to C 5.5} {C to A 1.1}}}}");
+    }
+
+
+    @Test
+    public void testBidirectional() {
+        Interpreter.run("{do NOTHING on {graph {A B C D} {{A to B 1} {A to C 5} {A <-> D 5}}}}");
+    }
+
+    @Test
+    public void testBidirectionalDFS0() {
+        Interpreter.run("{do DFS on {graph {A B C} {{A to B} {B to C} {C to A}}} from A to C}");
+    }
+
+    @Test
+    public void testBidirectionalDFS1() {
+        Interpreter.run("{do DFS on {graph {A B C} {{A <-> B} {B to C} {C to A}}} from A to C}");
+    }
+    @Test
+    public void testBidirectionalDFS2() {
+        Interpreter.run("{do DIJKSTRAS on {graph {A B C} {{A <-> B 5} {B <-> C 2} {C to A 1}}} from A to C}");
+    }
 }
