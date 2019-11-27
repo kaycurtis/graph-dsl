@@ -23,17 +23,20 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class Interpreter {
-
     private static final Map<Algorithm, Supplier<Snapshot>> SNAPSHOT_SUPPLIERS = ImmutableMap.of(
             Algorithm.DFS, DfsSnapshot::new,
             Algorithm.BFS, BfsSnapshot::new);
 
     // might need to make this a function if we need more arguments for djikstra
-    private static final Map<Algorithm, BiConsumer<Demo, GraphStreamGraph>> ANIMATION_FUNCTION_SUPPLIERS = ImmutableMap.of(
-            Algorithm.DFS, Interpreter::doSearchAnimation,
-            Algorithm.BFS, Interpreter::doSearchAnimation,
-            Algorithm.DIJKSTRAS, Interpreter::doDjikstraAnimation,
-            Algorithm.NOTHING, Interpreter::doNothingAnimation
+    private static final Map<Algorithm, BiConsumer<Demo, GraphStreamGraph>> ANIMATION_FUNCTION_SUPPLIERS = ImmutableMap.copyOf(
+            new HashMap<Algorithm, BiConsumer<Demo, GraphStreamGraph>>() {{
+                put(Algorithm.DFS, Interpreter::doSearchAnimation);
+                put(Algorithm.BFS, Interpreter::doSearchAnimation);
+                put(Algorithm.DIJKSTRAS, Interpreter::doDjikstraAnimation);
+                put(Algorithm.PRIMS, Interpreter::doPrimAnimation);
+                put(Algorithm.KRUSKALS, Interpreter::doKruskalAnimation);
+                put(Algorithm.NOTHING, Interpreter::doNothingAnimation);
+            }}
     );
 
 
@@ -126,6 +129,60 @@ public class Interpreter {
                         graphStreamGraph.getEdge(edge).setAttribute("ui.style", "fill-color: red;"));
                 display(SLOW_STEP_SECONDS);
                 return;
+            }
+        }
+    }
+
+    private static void doKruskalAnimation(Demo demo, GraphStreamGraph graphStreamGraph) {
+        KruskalSnapshot kruskalSnapshot = new KruskalSnapshot(demo);
+        boolean shouldDisplay = false; // used for display(FAST_STEP_SECONDS)
+        while(true) {
+            List<Edge> oldChosenEdges = new ArrayList<>(kruskalSnapshot.getChosenEdges());
+            graphStreamGraph.getEdges().values().forEach(edge ->
+                    edge.setAttribute("ui.style", "fill-color: black;"));
+            kruskalSnapshot.step(); // analogous to search() for Dijkstra
+            for (Edge edge : kruskalSnapshot.getChosenEdges()) {
+                graphStreamGraph.getEdge(edge).setAttribute("ui.style", "fill-color: green;");
+                if (!oldChosenEdges.contains(edge)) {
+                    if (shouldDisplay) {
+                        // Display the a->b and b->a edges together instead of separately
+                        display(FAST_STEP_SECONDS);
+                        shouldDisplay = false;
+                    } else {
+                        shouldDisplay = true;
+                    }
+                }
+            }
+            if (kruskalSnapshot.isOver()) { // analogous to getCurrent == null, or current == end for Dijkstra
+                display(SLOW_STEP_SECONDS);
+                break;
+            }
+        }
+    }
+
+    private static void doPrimAnimation(Demo demo, GraphStreamGraph graphStreamGraph) {
+        PrimSnapshot primSnapshot = new PrimSnapshot(demo);
+        boolean shouldDisplay = false; // used for display(FAST_STEP_SECONDS)
+        while (true) {
+            List<Edge> oldTree = new ArrayList<>(primSnapshot.getTree());
+            graphStreamGraph.getEdges().values().forEach(edge ->
+                    edge.setAttribute("ui.style", "fill-color: black;"));
+            primSnapshot.step(); // analogous to search() for Dijkstra
+            for (Edge edge : primSnapshot.getTree()) {
+                graphStreamGraph.getEdge(edge).setAttribute("ui.style", "fill-color: green;");
+                if (!oldTree.contains(edge)) {
+                    if (shouldDisplay) {
+                        // Display the a->b and b->a edges together instead of separately
+                        display(FAST_STEP_SECONDS);
+                        shouldDisplay = false;
+                    } else {
+                        shouldDisplay = true;
+                    }
+                }
+            }
+            if (primSnapshot.isOver()) { // analogous to getCurrent == null, or current == end for Dijkstra
+                display(SLOW_STEP_SECONDS);
+                break;
             }
         }
     }

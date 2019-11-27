@@ -109,6 +109,17 @@ public class InterpreterTest {
     }
 
     @Test
+    public void testPrim() {
+        Graph graph = Parser.parseGraph("{graph {A B C D E F} {{A to B 3} {B to A 3} {A to D 1.5} {D to A 1.5} {C to E 1} {E to C 1} {D to E 2} {E to D 2} {D to F 3} {F to D 3}}}");
+        Interpreter.interpret(Demo.of(Algorithm.PRIMS, graph, Node.of("A"), Node.of("E")));
+    }
+
+    @Test
+    public void testKruskal() {
+        Graph graph = Parser.parseGraph("{graph {A B C D E F} {{A to B 3} {B to A 3} {A to D 1.5} {D to A 1.5} {C to E 1} {E to C 1} {D to E 2} {E to D 2} {D to F 3} {F to D 3}}}");
+        Interpreter.interpret(Demo.of(Algorithm.KRUSKALS, graph, Node.of("A"), Node.of("E")));
+    }
+    
     public void testNothingSyntax1() {
         Interpreter.run("{do NOTHING on {graph {A B C} {{A to B} {B to C} {C to A}}} from A to C}");
     }
