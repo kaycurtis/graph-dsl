@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 // Undirected graph algorithm, so edges need matching reverse edge
+// ^ Update: doesn't actually need matching reverse edges but without them it would
+//   make a tree that isn't really connected, it would treat a->b, c->b, c->d as a "tree" for example
 // Ignores demo.end() since this algorithm generates a minimum spanning tree
 // Also ignores demo.start() since Kruskal's algorithm always starts with the smallest edge
 
