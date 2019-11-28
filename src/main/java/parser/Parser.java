@@ -27,10 +27,13 @@ public class Parser {
      *                  | <Edge> <Edges>
      * <Algorithm>   ::= DFS
      *                  | BFS
-     *                  | Dijkstra's
+     *                  | DIJKSTRAS
+     *                  | PRIMS
+     *                  | KRUSKALS
      */
 
-    private static final List<String> RESERVED = ImmutableList.of("to", "do", "on", "from", "graph", "DFS", "BFS", "DIJKSTRAS","NOTHING");
+    private static final List<String> RESERVED = ImmutableList.of("to", "do", "on", "from", "graph", "DFS", "BFS",
+                                                                  "DIJKSTRAS", "NOTHING", "PRIMS", "KRUSKALS");
 
     private static final Pattern LIST_PATTERN = Pattern.compile("\\{(.*)\\}");
     private static final Pattern NODE_PATTERN = Pattern.compile("([A-Za-z0-9]+)");
