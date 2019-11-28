@@ -27,18 +27,14 @@ public class Interpreter {
             Algorithm.DFS, DfsSnapshot::new,
             Algorithm.BFS, BfsSnapshot::new);
 
-    // might need to make this a function if we need more arguments for djikstra
-    private static final Map<Algorithm, BiConsumer<Demo, GraphStreamGraph>> ANIMATION_FUNCTION_SUPPLIERS = ImmutableMap.copyOf(
-            new HashMap<Algorithm, BiConsumer<Demo, GraphStreamGraph>>() {{
-                put(Algorithm.DFS, Interpreter::doSearchAnimation);
-                put(Algorithm.BFS, Interpreter::doSearchAnimation);
-                put(Algorithm.DIJKSTRAS, Interpreter::doDjikstraAnimation);
-                put(Algorithm.PRIMS, Interpreter::doPrimAnimation);
-                put(Algorithm.KRUSKALS, Interpreter::doKruskalAnimation);
-                put(Algorithm.NOTHING, Interpreter::doNothingAnimation);
-            }}
-    );
-
+    private static final Map<Algorithm, BiConsumer<Demo, GraphStreamGraph>> ANIMATION_FUNCTION_SUPPLIERS = ImmutableMap.<Algorithm, BiConsumer<Demo, GraphStreamGraph>>builder()
+            .put(Algorithm.DFS, Interpreter::doSearchAnimation)
+            .put(Algorithm.BFS, Interpreter::doSearchAnimation)
+            .put(Algorithm.DIJKSTRAS, Interpreter::doDjikstraAnimation)
+            .put(Algorithm.PRIMS, Interpreter::doPrimAnimation)
+            .put(Algorithm.KRUSKALS, Interpreter::doKruskalAnimation)
+            .put(Algorithm.NOTHING, Interpreter::doNothingAnimation)
+            .build();
 
     private static final int SLOW_STEP_SECONDS = 3;
     private static final int FAST_STEP_SECONDS = 1;
@@ -270,7 +266,6 @@ public class Interpreter {
                 .collect(Collectors.toList());
     }
 
-    // changes: handle the case when algorithm == NOTHING
     private static void validateDemo(Demo demo) {
         model.Graph graph = demo.getGraph();
         List<Edge> edges = graph.getEdges();
